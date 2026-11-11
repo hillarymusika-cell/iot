@@ -402,9 +402,9 @@ function App() {
 
   return h("main", { className: "page-shell" },
     h("header", { className: "topbar" },
-      h("a", { className: "brand", href: "#top", "aria-label": "Fieldnote home" },
+      h("a", { className: "brand", href: "#top", "aria-label": "Apex home" },
         h("span", { className: "brand-mark" }, h(Icon, { name: "leaf" })),
-        h("span", null, "fieldnote", h("small", null, "SENSOR STUDIO")),
+        h("span", null, "apex", h("small", null, "SENSOR STUDIO")),
       ),
       h("nav", { className: "topbar-actions", "aria-label": "Dashboard actions" },
         h("span", { className: "connection-label" },
