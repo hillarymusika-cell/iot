@@ -7,7 +7,7 @@ Soil-moisture sensor platform: ESP32 devices → Django API → React dashboard.
 | Layer | Tech |
 |-------|------|
 | Firmware | ESP32 / Arduino (`sensor/moistureSensor`) |
-| Backend | Django 5 + DRF + SimpleJWT + PostgreSQL |
+| Backend | Django 5 + DRF + SimpleJWT + **SQLite** (`api/`) |
 | Frontend | React 18 (ESM importmap) + custom SVG chart |
 | Ops | Docker Compose, GitHub Actions CI |
 
@@ -17,24 +17,22 @@ Soil-moisture sensor platform: ESP32 devices → Django API → React dashboard.
 - **Device registration** — create a device, receive one-time `device_id` + `token`
 - **Sensor ingest** — ESP32 posts `{"moisture": N}` with `Authorization: Bearer <token>` + `X-Device-ID`
 - **Dashboard** — live moisture chart + analytics summary (`/api/sensors/analytics/`)
+- **SQLite** — zero-config DB (persisted in Docker volume)
 - **Docker** — `docker compose up --build`
-- **CI** — lint/check + pytest + image build on `master` / `main`
+- **CI** — pytest + Docker image build on `master` / `main`
 
 ## Quick start (local)
 
 ```bash
-# Backend
-cd backend
+cd api
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 export SECRET_KEY=dev DEBUG=true
 python manage.py migrate
 python manage.py runserver 8000
-
-# Frontend (static)
-# open frontend/index.html or serve with any static server on :8080
-# API base auto-detects localhost:8000
 ```
+
+Open `frontend/index.html` (or serve on `:8080`). API base auto-detects `localhost:8000`.
 
 ## Docker
 
@@ -44,6 +42,8 @@ docker compose up --build
 # API      → http://localhost:8000
 # Health   → http://localhost:8000/health/
 ```
+
+SQLite file lives in the `sqlite_data` volume (`/data/db.sqlite3` in the container).
 
 ## API map (matches existing frontend)
 
@@ -76,6 +76,6 @@ namespace credentials {
 ## Tests
 
 ```bash
-cd backend
+cd api
 pytest -q
 ```
