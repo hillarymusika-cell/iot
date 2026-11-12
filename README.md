@@ -32,7 +32,13 @@ python manage.py migrate
 python manage.py runserver 8000
 ```
 
-Open `frontend/index.html` (or serve on `:8080`). API base auto-detects `localhost:8000`.
+In a second terminal from the repository root, serve the frontend:
+
+```bash
+python -m http.server 8080 --directory frontend
+```
+
+Open `http://localhost:8080`. The frontend API base auto-detects `http://localhost:8000`.
 
 ## Docker
 
@@ -49,7 +55,7 @@ SQLite file lives in the `sqlite_data` volume (`/data/db.sqlite3` in the contain
 
 | Method | Path | Auth | Purpose |
 |--------|------|------|---------|
-| GET | `/` | — | API home and service links |
+| GET | `/` | — | Landing page with dashboard and admin buttons |
 | GET | `/api/` | — | Discover API endpoint URLs |
 | GET | `/health/` | — | Health check |
 | GET | `/api/auth/csrf/` | — | CSRF cookie + token |
@@ -61,6 +67,10 @@ SQLite file lives in the `sqlite_data` volume (`/data/db.sqlite3` in the contain
 | GET | `/api/sensors/readings/` | — | Time-series for chart |
 | POST | `/api/sensors/readings/` | Device token | Ingest reading |
 | GET | `/api/sensors/analytics/` | — | Aggregates (avg/min/max) |
+
+Set `FRONTEND_URL` to your deployed dashboard URL so the API landing page's
+dashboard button opens the correct frontend. Docker Compose defaults to
+`http://localhost:8080`.
 
 ## ESP32 credentials
 

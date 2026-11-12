@@ -93,6 +93,8 @@ STORAGES = {
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+FRONTEND_URL = (os.getenv("FRONTEND_URL") or "http://localhost:8080").rstrip("/")
+
 # Frontend: https://apex-sensor-lab.onrender.com
 _DEFAULT_CORS = (
     "http://localhost:3000,"

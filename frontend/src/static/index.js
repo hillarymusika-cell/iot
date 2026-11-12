@@ -3,31 +3,46 @@ import { createRoot } from "react-dom/client";
 
 const localHosts = ["localhost", "127.0.0.1"];
 const defaultApiBase = localHosts.includes(window.location.hostname)
-  ? `${window.location.protocol}//${window.location.hostname}:8000`
-  : "";
+  ? `http://${window.location.hostname}:8000`
+  : window.location.protocol === "file:"
+    ? "http://localhost:8000"
+    : "";
 const API_BASE = (window.IOT_API_BASE || defaultApiBase).replace(/\/$/, "");
 const API_ROOT = `${API_BASE}/api/`;
+const initialAuthMode = new URLSearchParams(window.location.search).get("auth") === "signup" ? "signup" : "login";
+const openSignupFromUrl = initialAuthMode === "signup";
 let apiUrlsPromise;
+
+function resolveApiUrl(path) {
+  return new URL(path, `${API_BASE || window.location.origin}/`).href;
+}
 
 function getApiUrls() {
   if (!apiUrlsPromise) {
     apiUrlsPromise = fetch(API_ROOT, { headers: { Accept: "application/json" } })
       .then(async (response) => {
-        const urls = await response.json();
+        const urls = await response.json().catch(() => null);
         if (
           !response.ok ||
-          !urls.auth?.csrf ||
-          !urls.auth?.signup ||
-          !urls.auth?.login ||
-          !urls.auth?.refresh ||
-          !urls.auth?.logout ||
-          !urls.devices ||
-          !urls.readings ||
-          !urls.analytics
+          !urls?.auth?.csrf ||
+          !urls?.auth?.signup ||
+          !urls?.auth?.login ||
+          !urls?.auth?.refresh ||
+          !urls?.auth?.logout ||
+          !urls?.devices ||
+          !urls?.readings ||
+          !urls?.analytics
         ) {
-          throw new Error(urls.detail || `Could not load API endpoints (${response.status}).`);
+          throw new Error(urls?.detail || `Could not load API endpoints (${response.status}).`);
         }
-        return urls;
+        return {
+          auth: Object.fromEntries(
+            Object.entries(urls.auth).map(([name, path]) => [name, resolveApiUrl(path)]),
+          ),
+          devices: resolveApiUrl(urls.devices),
+          readings: resolveApiUrl(urls.readings),
+          analytics: resolveApiUrl(urls.analytics),
+        };
       });
   }
   return apiUrlsPromise;
@@ -93,6 +108,11 @@ function formatTime(value, options = {}) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return String(value);
   return new Intl.DateTimeFormat(undefined, options).format(date);
+}
+
+function formatMetric(value, unit = "") {
+  if (typeof value !== "number" || !Number.isFinite(value)) return "—";
+  return `${value.toLocaleString(undefined, { maximumFractionDigits: 1 })}${unit}`;
 }
 
 function Icon({ name }) {
@@ -168,8 +188,8 @@ function MoistureChart({ readings }) {
   );
 }
 
-function AuthDialog({ onClose, onSuccess }) {
-  const [mode, setMode] = useState("login");
+function AuthDialog({ onClose, onSuccess, initialMode = "login" }) {
+  const [mode, setMode] = useState(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -378,11 +398,16 @@ function RegistrationDialog({ accessToken, refreshAccess, onClose, onUnauthentic
 
 function App() {
   const [readings, setReadings] = useState([]);
+  const [analytics, setAnalytics] = useState(null);
+  const [analyticsEndpoint, setAnalyticsEndpoint] = useState("");
   const [loading, setLoading] = useState(true);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [analyticsError, setAnalyticsError] = useState("");
   const [lastUpdated, setLastUpdated] = useState(null);
   const [showRegistration, setShowRegistration] = useState(false);
-  const [showAuth, setShowAuth] = useState(false);
+  const [showAuth, setShowAuth] = useState(openSignupFromUrl);
+  const [authMode, setAuthMode] = useState(initialAuthMode);
   const [auth, setAuth] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
 
@@ -406,7 +431,12 @@ function App() {
 
   function openDeviceRegistration() {
     if (auth?.access) setShowRegistration(true);
-    else setShowAuth(true);
+    else openAuth("login");
+  }
+
+  function openAuth(mode) {
+    setAuthMode(mode);
+    setShowAuth(true);
   }
 
   async function signOut() {
@@ -432,7 +462,10 @@ function App() {
   const loadReadings = useCallback(async () => {
     try {
       const { readings } = await getApiUrls();
-      const response = await fetch(readings, { headers: { Accept: "application/json" } });
+      const response = await fetch(readings, {
+        headers: { Accept: "application/json" },
+        cache: "no-store",
+      });
       if (!response.ok) throw new Error(`Could not load readings (${response.status}).`);
       const payload = await response.json();
       setReadings(normalizeReadings(payload));
@@ -445,11 +478,48 @@ function App() {
     }
   }, []);
 
+  const loadAnalytics = useCallback(async () => {
+    setAnalyticsLoading(true);
+    try {
+      const { analytics: endpoint } = await getApiUrls();
+      setAnalyticsEndpoint(new URL(endpoint).pathname);
+      const response = await fetch(endpoint, {
+        headers: { Accept: "application/json" },
+        cache: "no-store",
+      });
+      if (!response.ok) throw new Error(`Could not load analytics (${response.status}).`);
+      const payload = await response.json();
+      if (!payload || !Number.isFinite(payload.sample_count) || !payload.moisture) {
+        throw new Error("The analytics endpoint returned an unexpected response.");
+      }
+      setAnalytics(payload);
+      setAnalyticsError("");
+    } catch (requestError) {
+      setAnalyticsError(requestError.message || "Could not connect to the analytics service.");
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     loadReadings();
     const interval = window.setInterval(loadReadings, 30_000);
     return () => window.clearInterval(interval);
   }, [loadReadings]);
+
+  useEffect(() => {
+    loadAnalytics();
+    const interval = window.setInterval(loadAnalytics, 30_000);
+    return () => window.clearInterval(interval);
+  }, [loadAnalytics]);
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("view") !== "analytics") return undefined;
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById("analytics")?.scrollIntoView({ behavior: "smooth" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
 
   const latest = readings[readings.length - 1];
   const previous = readings.length > 1 ? readings[readings.length - 2] : null;
@@ -479,7 +549,7 @@ function App() {
           : h("button", {
               className: "button button-outline",
               type: "button",
-              onClick: () => setShowAuth(true),
+              onClick: () => openAuth("login"),
               disabled: authLoading,
               "aria-label": "Sign in to add a device",
             },
@@ -492,6 +562,12 @@ function App() {
         h("p", { className: "eyebrow" }, "YOUR GROWING SPACE"),
         h("h1", null, "Moisture, ", h("em", null, "in focus.")),
         h("p", { className: "intro-copy" }, "A clear view of what your soil needs, right when it needs it."),
+        h("div", { className: "intro-actions" },
+          auth?.access
+            ? h("button", { className: "button button-primary", type: "button", onClick: openDeviceRegistration }, "Add a device")
+            : h("button", { className: "button button-primary", type: "button", onClick: () => openAuth("signup") }, "Create account"),
+          h("a", { className: "button button-outline", href: "#analytics" }, "View analytics"),
+        ),
       ),
       h("div", { className: "intro-decoration", "aria-hidden": "true" },
         h("span", { className: "sun-disc" }),
@@ -538,6 +614,56 @@ function App() {
         h("p", { className: "detail-caption sync-caption" }, "Automatic refresh every 30 seconds"),
       ),
     ),
+    h("section", { className: "analytics-card", id: "analytics", "aria-labelledby": "analytics-title" },
+      h("div", { className: "analytics-heading" },
+        h("div", null,
+          h("p", { className: "eyebrow" }, "LIVE SUMMARY"),
+          h("h2", { id: "analytics-title" }, "Analytics"),
+          h("p", { className: "analytics-caption" },
+            analytics ? `Last ${analytics.window_hours} hours · ${analytics.sample_count} samples` : "Sensor averages and ranges",
+          ),
+        ),
+        h("div", { className: "endpoint-chip", "aria-label": `Analytics endpoint: ${analyticsEndpoint || "loading"}` },
+          h("span", null, "GET"),
+          h("code", null, analyticsEndpoint || "Resolving endpoint…"),
+        ),
+      ),
+      analyticsError
+        ? h("div", { className: "analytics-error", role: "alert" },
+            h("span", null, analyticsError),
+            h("button", { className: "notice-action", type: "button", onClick: loadAnalytics }, "Try again"),
+          )
+        : h("div", { className: "analytics-grid" },
+            h("article", { className: "analytics-metric" },
+              h("span", null, "Average moisture"),
+              h("strong", null, analyticsLoading && !analytics ? "Loading…" : formatMetric(analytics?.moisture?.avg, "%")),
+            ),
+            h("article", { className: "analytics-metric" },
+              h("span", null, "Moisture range"),
+              h("strong", null,
+                analyticsLoading && !analytics
+                  ? "Loading…"
+                  : analytics?.moisture?.min == null || analytics?.moisture?.max == null
+                    ? "—"
+                    : `${formatMetric(analytics.moisture.min)}–${formatMetric(analytics.moisture.max)}%`,
+              ),
+            ),
+            h("article", { className: "analytics-metric" },
+              h("span", null, "Average temperature"),
+              h("strong", null, analyticsLoading && !analytics ? "Loading…" : formatMetric(analytics?.temperature_avg, "°")),
+            ),
+            h("article", { className: "analytics-metric" },
+              h("span", null, "Average humidity"),
+              h("strong", null, analyticsLoading && !analytics ? "Loading…" : formatMetric(analytics?.humidity_avg, "%")),
+            ),
+          ),
+      h("div", { className: "analytics-footer" },
+        h("span", null, "Refreshes automatically every 30 seconds"),
+        h("button", { className: "button button-quiet", type: "button", onClick: loadAnalytics, disabled: analyticsLoading },
+          h(Icon, { name: "refresh" }), analyticsLoading ? "Refreshing…" : "Refresh analytics",
+        ),
+      ),
+    ),
     h("section", { className: "history-card", "aria-labelledby": "history-title" },
       h("div", { className: "section-heading" },
         h("div", null,
@@ -568,6 +694,7 @@ function App() {
       h("span", null, "Last checked ", updatedLabel),
     ),
     showAuth && h(AuthDialog, {
+      initialMode: authMode,
       onClose: () => setShowAuth(false),
       onSuccess: (session) => {
         setAuth(session);
@@ -582,7 +709,7 @@ function App() {
       onUnauthenticated: () => {
         setAuth(null);
         setShowRegistration(false);
-        setShowAuth(true);
+        openAuth("login");
       },
     }),
   );

@@ -1,4 +1,5 @@
 import pytest
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
 
@@ -24,22 +25,23 @@ def test_home_and_api_index(api):
     assert r.status_code == 200
     assert r["Content-Type"].startswith("text/html")
     assert b"Apex Sensor Studio" in r.content
-    assert b'href="/api/"' in r.content
-    assert b'href="/health/"' in r.content
+    assert f'href="{settings.FRONTEND_URL}/?auth=signup"'.encode() in r.content
+    assert f'href="{settings.FRONTEND_URL}/?view=analytics"'.encode() in r.content
+    assert b'href="/api/' not in r.content
 
     r = api.get("/api/")
     assert r.status_code == 200
     assert r.json() == {
         "auth": {
-            "csrf": "http://testserver/api/auth/csrf/",
-            "signup": "http://testserver/api/auth/signup/",
-            "login": "http://testserver/api/auth/login/",
-            "refresh": "http://testserver/api/auth/refresh/",
-            "logout": "http://testserver/api/auth/logout/",
+            "csrf": "/api/auth/csrf/",
+            "signup": "/api/auth/signup/",
+            "login": "/api/auth/login/",
+            "refresh": "/api/auth/refresh/",
+            "logout": "/api/auth/logout/",
         },
-        "devices": "http://testserver/api/devices/",
-        "readings": "http://testserver/api/sensors/readings/",
-        "analytics": "http://testserver/api/sensors/analytics/",
+        "devices": "/api/devices/",
+        "readings": "/api/sensors/readings/",
+        "analytics": "/api/sensors/analytics/",
     }
 
 

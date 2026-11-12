@@ -59,6 +59,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 .intro h1 { margin: 0; font-family: "Fraunces", Georgia, serif; font-size: clamp(38px, 5vw, 55px); font-weight: 500; letter-spacing: -2px; line-height: 1.08; }
 .intro h1 em { color: #587747; font-weight: 500; }
 .intro-copy { margin: 13px 0 0; color: #727a68; font-size: 13px; }
+.intro-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
 .intro-decoration { position: absolute; top: 2px; right: 8%; width: 250px; height: 226px; }
 .sun-disc { position: absolute; top: 18px; right: 26px; width: 104px; height: 104px; border-radius: 50%; background: var(--harvest); opacity: .46; }
 .plant-stem { position: absolute; right: 78px; bottom: 28px; width: 3px; height: 150px; border-radius: 4px; background: #718b54; transform: rotate(9deg); }
@@ -72,7 +73,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 .notice { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: -4px 0 18px; padding: 12px 15px; color: #714a32; background: #f8eddf; border: 1px solid #e8d5bd; border-radius: 9px; font-size: 12px; }
 .notice-action { padding: 4px 2px; color: #714a32; background: none; border: 0; cursor: pointer; font-weight: 700; }
 .overview-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(240px, 1fr); gap: 16px; }
-.reading-card, .detail-card, .history-card { background: var(--paper); border: 1px solid rgba(55, 74, 43, .09); border-radius: 13px; box-shadow: 0 8px 26px rgba(57, 67, 39, .055); }
+.reading-card, .detail-card, .analytics-card, .history-card { background: var(--paper); border: 1px solid rgba(55, 74, 43, .09); border-radius: 13px; box-shadow: 0 8px 26px rgba(57, 67, 39, .055); }
 .reading-card { min-height: 224px; display: flex; flex-direction: column; padding: 23px 25px 0; }
 .card-heading { display: flex; justify-content: space-between; align-items: flex-start; }
 .card-heading .eyebrow { margin-bottom: 5px; }
@@ -93,6 +94,20 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 .detail-time { font-size: 21px; }
 .detail-caption { margin: 4px 0 0; color: #7f8874; font-size: 10px; }
 .detail-divider { height: 1px; margin: 16px 0 15px; background: #e9ebdf; }
+.analytics-card { margin-top: 17px; padding: 22px 25px 0; scroll-margin-top: 20px; }
+.analytics-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.analytics-heading .eyebrow { margin-bottom: 5px; }
+.analytics-heading h2 { margin: 0; font-family: "Fraunces", Georgia, serif; font-size: 21px; font-weight: 500; }
+.analytics-caption { margin: 5px 0 0; color: #7f8874; font-size: 10px; }
+.endpoint-chip { display: inline-flex; max-width: 100%; align-items: center; gap: 8px; border: 1px solid #e3e8dc; border-radius: 7px; padding: 8px 10px; color: #63725b; background: #f7f8f2; font-size: 9px; }
+.endpoint-chip span { color: #557447; font-weight: 700; letter-spacing: .7px; }
+.endpoint-chip code { overflow-wrap: anywhere; font-size: 10px; }
+.analytics-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 20px 0; }
+.analytics-metric { min-width: 0; display: flex; flex-direction: column; gap: 9px; border: 1px solid #e9ebdf; border-radius: 9px; padding: 14px; background: #fffefb; }
+.analytics-metric span { color: #7f8874; font-size: 10px; }
+.analytics-metric strong { overflow-wrap: anywhere; color: #34543a; font-family: "Fraunces", Georgia, serif; font-size: clamp(18px, 2.2vw, 25px); font-weight: 500; }
+.analytics-error { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 18px 0; border: 1px solid #e8d5bd; border-radius: 8px; padding: 11px 13px; color: #714a32; background: #f8eddf; font-size: 11px; }
+.analytics-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; border-top: 1px solid #e9ebdf; color: #7f8874; font-size: 10px; }
 .history-card { margin-top: 17px; padding: 22px 25px 0; }
 .section-heading { display: flex; align-items: center; justify-content: space-between; }
 .section-heading .eyebrow { margin-bottom: 5px; }
@@ -144,6 +159,8 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
   .intro-decoration { right: -67px; opacity: .62; transform: scale(.8); transform-origin: center right; }
   .intro > div:first-child { position: relative; z-index: 1; }
   .intro-copy { max-width: 270px; line-height: 1.6; }
+  .analytics-card { padding: 19px 17px 0; }
+  .analytics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .overview-grid { grid-template-columns: 1fr; gap: 12px; }
   .reading-card { min-height: 210px; }
   .detail-card { display: grid; grid-template-columns: 1fr 1fr; column-gap: 15px; padding: 17px 20px; }
@@ -172,6 +189,8 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
   .reading-card { padding-right: 19px; padding-left: 19px; }
   .section-heading h2 { font-size: 19px; }
   .button-quiet { padding: 0 7px; font-size: 11px; }
+  .endpoint-chip { align-items: flex-start; }
+  .analytics-footer { min-height: 58px; font-size: 9px; }
   .history-summary { font-size: 9px; }
   .footer { flex-direction: column; }
   .dialog { padding: 27px 22px; }

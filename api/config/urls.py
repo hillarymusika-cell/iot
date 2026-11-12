@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import admin
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -13,16 +14,12 @@ def home(request):
         request,
         "home.html",
         {
-            "api_url": reverse("api-root"),
-            "health_url": reverse("health"),
-            "readings_url": reverse("readings"),
-            "analytics_url": reverse("analytics-summary"),
-            "devices_url": reverse("device-list-create"),
+            "dashboard_url": settings.FRONTEND_URL,
         },
     )
 
 
-def api_root(request):
+def api_root(_request):
     auth_endpoints = {
         "csrf": "csrf",
         "signup": "signup",
@@ -38,11 +35,11 @@ def api_root(request):
     return JsonResponse(
         {
             "auth": {
-                action: request.build_absolute_uri(reverse(route_name))
+                action: reverse(route_name)
                 for action, route_name in auth_endpoints.items()
             },
             **{
-                name: request.build_absolute_uri(reverse(route_name))
+                name: reverse(route_name)
                 for name, route_name in endpoints.items()
             },
         }

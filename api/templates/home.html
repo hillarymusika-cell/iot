@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#f5f5ee" />
-    <meta name="description" content="Apex Sensor Studio API home." />
-    <title>Apex Sensor Studio | API</title>
+    <meta name="description" content="Welcome to Apex Sensor Studio." />
+    <title>Apex Sensor Studio</title>
     <style>
       :root {
         color-scheme: light;
@@ -31,7 +31,7 @@
         padding: 2rem 0 4rem;
       }
 
-      header, .actions, .endpoint {
+      header, .actions {
         display: flex;
         align-items: center;
       }
@@ -108,36 +108,12 @@
         color: white;
       }
 
-      .section-heading {
-        margin: 0 0 1rem;
-        font-size: 1rem;
-        font-weight: 700;
-      }
-
-      .endpoints {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-        gap: .85rem;
-      }
-
-      .endpoint {
-        min-height: 5.2rem;
-        justify-content: space-between;
-        gap: .75rem;
-        border: 1px solid #e1e4dc;
-        border-radius: .7rem;
-        padding: 1rem;
-        background: rgb(255 255 255 / 55%);
-        text-decoration: none;
-      }
-
-      .endpoint strong { color: #35473c; font-size: .9rem; }
-      .endpoint code { color: #738078; font-size: .75rem; }
-      .endpoint:hover { border-color: #91a688; background: white; }
+      .button:hover { border-color: #91a688; background: white; }
+      .button-primary:hover { border-color: #2e5035; background: #2e5035; }
       a:focus-visible { outline: 3px solid #9db58e; outline-offset: 3px; }
 
       footer {
-        margin-top: 2rem;
+        margin-top: 3rem;
         color: #7a847d;
         font-size: .8rem;
       }
@@ -147,38 +123,23 @@
     <main>
       <header>
         <a class="brand" href="/">apex<span>.</span></a>
-        <span class="badge">API ONLINE</span>
+        <span class="badge">SENSOR STUDIO</span>
       </header>
 
       <section class="hero" aria-labelledby="page-title">
-        <div class="eyebrow">Sensor Studio · API</div>
+        <div class="eyebrow">Soil moisture monitoring</div>
         <h1 id="page-title">A clearer view of your growing environment.</h1>
         <p class="intro">
-          The Apex API collects soil moisture readings from your devices and
-          makes them available for the Sensor Studio dashboard.
+          Monitor live sensor readings, follow moisture trends, and manage the
+          devices connected to your growing space.
         </p>
         <div class="actions">
-          <a class="button button-primary" href="{{ api_url }}">Explore API endpoints</a>
-          <a class="button" href="{{ health_url }}">Check service health</a>
+          <a class="button button-primary" href="{{ dashboard_url }}/?auth=signup">Create account</a>
+          <a class="button" href="{{ dashboard_url }}/?view=analytics">View analytics</a>
         </div>
       </section>
 
-      <section aria-labelledby="endpoints-title">
-        <h2 class="section-heading" id="endpoints-title">Available services</h2>
-        <div class="endpoints">
-          <a class="endpoint" href="{{ readings_url }}">
-            <strong>Sensor readings</strong><code>GET /api/sensors/readings/</code>
-          </a>
-          <a class="endpoint" href="{{ analytics_url }}">
-            <strong>Analytics summary</strong><code>GET /api/sensors/analytics/</code>
-          </a>
-          <a class="endpoint" href="{{ devices_url }}">
-            <strong>Device registry</strong><code>/api/devices/</code>
-          </a>
-        </div>
-      </section>
-
-      <footer>Use the API endpoint index for the full set of routes and authentication URLs.</footer>
+      <footer>Apex Sensor Studio · Live data from your connected sensors</footer>
     </main>
   </body>
 </html>
