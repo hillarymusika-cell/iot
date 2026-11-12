@@ -10,7 +10,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     VIRTUAL_ENV=/opt/venv \
     PATH="/opt/venv/bin:$PATH"
 
-WORKDIR /build
+WORKDIR /api
 
 COPY requirements.txt .
 RUN python -m venv /opt/venv \
