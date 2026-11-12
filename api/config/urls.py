@@ -12,7 +12,7 @@ def health(_request):
 def home(request):
     return render(
         request,
-        "home.html",
+        "index.html",
         {
             "dashboard_url": settings.FRONTEND_URL,
         },

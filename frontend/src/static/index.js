@@ -20,10 +20,9 @@ function resolveApiUrl(path) {
 function getApiUrls() {
   if (!apiUrlsPromise) {
     apiUrlsPromise = fetch(API_ROOT, { headers: { Accept: "application/json" } })
-      .then(async (response) => {
-        const urls = await response.json().catch(() => null);
+      .then((response) => readJsonResponse(response, "Could not load API endpoints"))
+      .then((urls) => {
         if (
-          !response.ok ||
           !urls?.auth?.csrf ||
           !urls?.auth?.signup ||
           !urls?.auth?.login ||
@@ -33,7 +32,7 @@ function getApiUrls() {
           !urls?.readings ||
           !urls?.analytics
         ) {
-          throw new Error(urls?.detail || `Could not load API endpoints (${response.status}).`);
+          throw new Error("The API endpoint index is missing required routes.");
         }
         return {
           auth: Object.fromEntries(
@@ -48,14 +47,40 @@ function getApiUrls() {
   return apiUrlsPromise;
 }
 
+async function readJsonResponse(response, operation) {
+  const contentType = response.headers.get("content-type") || "";
+  if (!contentType.includes("json")) {
+    const hint = response.status >= 500
+      ? " Check the backend logs and confirm database migrations have been applied."
+      : " Verify the configured API URL.";
+    throw new Error(
+      `${operation} (${response.status}) returned a non-JSON response.${hint}`,
+    );
+  }
+
+  let payload;
+  try {
+    payload = await response.json();
+  } catch {
+    throw new Error(`${operation} returned invalid JSON.`);
+  }
+  if (!payload || typeof payload !== "object") {
+    throw new Error(`${operation} returned an unexpected response.`);
+  }
+  if (!response.ok) {
+    throw new Error(responseError(payload, `${operation} failed (${response.status}).`));
+  }
+  return payload;
+}
+
 async function getCsrfToken() {
   const { auth } = await getApiUrls();
   const response = await fetch(auth.csrf, {
     headers: { Accept: "application/json" },
     credentials: "include",
   });
-  const payload = await response.json();
-  if (!response.ok || !payload.csrfToken) {
+  const payload = await readJsonResponse(response, "Could not prepare authentication");
+  if (!payload.csrfToken) {
     throw new Error(payload.detail || `Could not prepare authentication (${response.status}).`);
   }
   return payload.csrfToken;
@@ -70,8 +95,8 @@ async function refreshAccessToken() {
     credentials: "include",
   });
   if (response.status === 401) return null;
-  const payload = await response.json();
-  if (!response.ok || !payload.access) {
+  const payload = await readJsonResponse(response, "Could not restore your session");
+  if (!payload.access) {
     throw new Error(payload.detail || `Could not restore your session (${response.status}).`);
   }
   return payload.access;
@@ -216,8 +241,8 @@ function AuthDialog({ onClose, onSuccess, initialMode = "login" }) {
           confirm_password: confirmPassword,
         }),
       });
-      const payload = await response.json();
-      if (!response.ok || !payload.access) {
+      const payload = await readJsonResponse(response, mode === "signup" ? "Could not create your account" : "Could not sign in");
+      if (!payload.access) {
         throw new Error(responseError(payload, `Could not ${mode === "signup" ? "create your account" : "sign in"} (${response.status}).`));
       }
       onSuccess({ access: payload.access, user: payload.user || null });
@@ -325,10 +350,7 @@ function RegistrationDialog({ accessToken, refreshAccess, onClose, onUnauthentic
           body: JSON.stringify({ name: name.trim() }),
         });
       }
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        throw new Error(payload.message || `Registration failed (${response.status}).`);
-      }
+      const payload = await readJsonResponse(response, "Registration failed");
       if (!payload.device_id || !payload.token) {
         throw new Error("The server response did not include device credentials.");
       }
@@ -449,8 +471,7 @@ function App() {
         credentials: "include",
       });
       if (!response.ok && response.status !== 401) {
-        const payload = await response.json().catch(() => ({}));
-        throw new Error(responseError(payload, `Could not sign out (${response.status}).`));
+        await readJsonResponse(response, "Could not sign out");
       }
     } catch (requestError) {
       setError(requestError.message || "Could not sign out. Please try again.");
@@ -466,8 +487,7 @@ function App() {
         headers: { Accept: "application/json" },
         cache: "no-store",
       });
-      if (!response.ok) throw new Error(`Could not load readings (${response.status}).`);
-      const payload = await response.json();
+      const payload = await readJsonResponse(response, "Could not load readings");
       setReadings(normalizeReadings(payload));
       setError("");
       setLastUpdated(new Date());
@@ -487,8 +507,7 @@ function App() {
         headers: { Accept: "application/json" },
         cache: "no-store",
       });
-      if (!response.ok) throw new Error(`Could not load analytics (${response.status}).`);
-      const payload = await response.json();
+      const payload = await readJsonResponse(response, "Could not load analytics");
       if (!payload || !Number.isFinite(payload.sample_count) || !payload.moisture) {
         throw new Error("The analytics endpoint returned an unexpected response.");
       }

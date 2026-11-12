@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f3f1e6" />
+    <meta name="description" content="Apex Sensor Studio for live soil moisture monitoring." />
+    <title>Apex Sensor Studio</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: "Segoe UI", sans-serif;
+        color: #29392a;
+        background: #f3f1e6;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        min-width: 320px;
+        min-height: 100vh;
+        margin: 0;
+        background:
+          radial-gradient(ellipse at 82% 8%, #dce8cf 0, transparent 34rem),
+          #f3f1e6;
+      }
+
+      main {
+        width: min(100% - 2.5rem, 1040px);
+        margin: 0 auto;
+        padding: 2rem 0 3rem;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid rgb(57 78 44 / 16%);
+        padding-bottom: 1.15rem;
+      }
+
+      .brand {
+        color: #29392a;
+        font-size: 1.2rem;
+        font-weight: 750;
+        letter-spacing: -.05em;
+        text-decoration: none;
+      }
+
+      .brand span { color: #64834e; }
+
+      .badge {
+        border: 1px solid #d5ddcf;
+        border-radius: 999px;
+        padding: .45rem .75rem;
+        color: #53644c;
+        font-size: .7rem;
+        font-weight: 700;
+        letter-spacing: .08em;
+      }
+
+      .hero {
+        max-width: 740px;
+        padding: clamp(5rem, 15vw, 9rem) 0 5rem;
+      }
+
+      .eyebrow {
+        margin: 0 0 .85rem;
+        color: #638256;
+        font-size: .72rem;
+        font-weight: 750;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        font-family: Georgia, serif;
+        font-size: clamp(3rem, 8vw, 5.7rem);
+        font-weight: 500;
+        letter-spacing: -.065em;
+        line-height: 1.02;
+      }
+
+      .intro {
+        max-width: 570px;
+        margin: 1.25rem 0 0;
+        color: #65716a;
+        font-size: clamp(1rem, 2vw, 1.15rem);
+        line-height: 1.7;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .75rem;
+        margin-top: 2rem;
+      }
+
+      .button {
+        display: inline-flex;
+        min-height: 2.9rem;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #cbd4c1;
+        border-radius: .6rem;
+        padding: .7rem 1.1rem;
+        color: #35473c;
+        background: rgb(255 254 249 / 65%);
+        font-size: .9rem;
+        font-weight: 650;
+        text-decoration: none;
+        transition: transform .18s ease, background .18s ease;
+      }
+
+      .button:hover { background: white; transform: translateY(-1px); }
+
+      .button-primary {
+        border-color: #426b46;
+        color: white;
+        background: #426b46;
+      }
+
+      .button-primary:hover { border-color: #2e5035; background: #2e5035; }
+      a:focus-visible { outline: 3px solid #9dbb83; outline-offset: 3px; }
+
+      .note {
+        border-top: 1px solid #e1e2d3;
+        padding-top: 1.25rem;
+        color: #7a847d;
+        font-size: .8rem;
+      }
+
+      @media (max-width: 520px) {
+        main { width: min(100% - 2rem, 1040px); }
+        .hero { padding: 5rem 0 4rem; }
+        .actions { align-items: stretch; flex-direction: column; }
+        .button { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <a class="brand" href="{{ dashboard_url }}">apex<span>.</span></a>
+        <span class="badge">SENSOR STUDIO</span>
+      </header>
+
+      <section class="hero" aria-labelledby="page-title">
+        <p class="eyebrow">Soil moisture monitoring</p>
+        <h1 id="page-title">Moisture, in focus.</h1>
+        <p class="intro">
+          See live readings, understand changing conditions, and keep your
+          growing space healthy with data from your connected sensors.
+        </p>
+        <nav class="actions" aria-label="Get started">
+          <a class="button button-primary" href="{{ dashboard_url }}/?auth=signup">Create account</a>
+          <a class="button" href="{{ dashboard_url }}/?view=analytics">View analytics</a>
+        </nav>
+      </section>
+
+      <footer class="note">Apex Sensor Studio · Live data from your connected sensors</footer>
+    </main>
+  </body>
+</html>
