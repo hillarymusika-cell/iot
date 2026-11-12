@@ -9,10 +9,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /build
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
-
 RUN python -m venv /opt/venv
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
@@ -26,7 +22,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     DJANGO_SETTINGS_MODULE=config.settings
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq5 curl \
+    curl \
     && rm -rf /var/lib/apt/lists/* \
     && groupadd -r app && useradd -r -g app -d /app -s /sbin/nologin app
 
@@ -36,6 +32,7 @@ COPY --from=deps /opt/venv /opt/venv
 COPY --chown=app:app . .
 
 RUN python manage.py collectstatic --noinput || true
+RUN mkdir -p /data && chown app:app /data
 
 USER app
 EXPOSE 8000
