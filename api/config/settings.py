@@ -93,16 +93,32 @@ STORAGES = {
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Frontend: https://apex-sensor-lab.onrender.com
+_DEFAULT_CORS = (
+    "http://localhost:3000,"
+    "http://127.0.0.1:3000,"
+    "http://localhost:5173,"
+    "http://127.0.0.1:5173,"
+    "http://localhost:8080,"
+    "https://apex-sensor-lab.onrender.com"
+)
+
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     o.strip()
+    for o in os.getenv("CORS_ALLOWED_ORIGINS", "".join(_DEFAULT_CORS)).split(",")
+    if o.strip()
+]
+
+# CSRF can be overridden separately; defaults to same list as CORS
+CSRF_TRUSTED_ORIGINS = [
+    o.strip()
     for o in os.getenv(
-        "CORS_ALLOWED_ORIGINS",
-        "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173,http://localhost:8080",
+        "CSRF_TRUSTED_ORIGINS",
+        os.getenv("CORS_ALLOWED_ORIGINS", "".join(_DEFAULT_CORS)),
     ).split(",")
     if o.strip()
 ]
-CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
@@ -123,6 +139,13 @@ SIMPLE_JWT = {
 }
 
 JWT_AUTH_COOKIE = "refresh_token"
+# Cross-site frontend (apex-sensor-lab.onrender.com) needs SameSite=None + Secure
 JWT_AUTH_SECURE = not DEBUG
 JWT_AUTH_HTTPONLY = True
-JWT_AUTH_SAMESITE = "Lax"
+JWT_AUTH_SAMESITE = "None" if not DEBUG else "Lax"
+
+# Django session/CSRF cookies for cross-origin SPA on Render
+CSRF_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SAMESITE = "None" if not DEBUG else "Lax"
+SESSION_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SAMESITE = "None" if not DEBUG else "Lax"
