@@ -1,0 +1,2 @@
+# IoT API dependencies — canonical file is api/requirements.txt
+-r api/requirements.txt

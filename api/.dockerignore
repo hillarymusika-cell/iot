@@ -1,0 +1,15 @@
+__pycache__
+*.py[cod]
+*.sqlite3
+.venv
+venv
+.env
+.env.*
+.pytest_cache
+.mypy_cache
+*.log
+.git
+.gitignore
+tests
+pytest.ini
+requirements-dev.txt
