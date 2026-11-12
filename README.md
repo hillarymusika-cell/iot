@@ -49,6 +49,9 @@ SQLite file lives in the `sqlite_data` volume (`/data/db.sqlite3` in the contain
 
 | Method | Path | Auth | Purpose |
 |--------|------|------|---------|
+| GET | `/` | — | API home and service links |
+| GET | `/api/` | — | Discover API endpoint URLs |
+| GET | `/health/` | — | Health check |
 | GET | `/api/auth/csrf/` | — | CSRF cookie + token |
 | POST | `/api/auth/signup/` | — | Create account → access JWT |
 | POST | `/api/auth/login/` | — | Login → access JWT |

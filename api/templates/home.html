@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f5f5ee" />
+    <meta name="description" content="Apex Sensor Studio API home." />
+    <title>Apex Sensor Studio | API</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: "Segoe UI", sans-serif;
+        color: #23332d;
+        background: #f5f5ee;
+        font-synthesis: none;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(ellipse at 82% 8%, #dce8cf 0, transparent 34rem),
+          #f5f5ee;
+      }
+
+      main {
+        width: min(100% - 2.5rem, 960px);
+        margin: 0 auto;
+        padding: 2rem 0 4rem;
+      }
+
+      header, .actions, .endpoint {
+        display: flex;
+        align-items: center;
+      }
+
+      header { justify-content: space-between; }
+
+      .brand {
+        color: #23332d;
+        font-size: 1.15rem;
+        font-weight: 750;
+        letter-spacing: -.04em;
+        text-decoration: none;
+      }
+
+      .brand span { color: #638256; }
+
+      .badge {
+        border: 1px solid #d5ddcf;
+        border-radius: 999px;
+        padding: .45rem .75rem;
+        color: #53644c;
+        font-size: .75rem;
+        font-weight: 650;
+      }
+
+      .hero {
+        max-width: 700px;
+        padding: clamp(4.5rem, 12vw, 8rem) 0 3.5rem;
+      }
+
+      .eyebrow {
+        color: #638256;
+        font-size: .75rem;
+        font-weight: 750;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: .8rem 0 1rem;
+        font-family: Georgia, serif;
+        font-size: clamp(2.8rem, 7vw, 5rem);
+        font-weight: 500;
+        letter-spacing: -.055em;
+        line-height: 1.03;
+      }
+
+      .intro {
+        max-width: 560px;
+        color: #65716a;
+        font-size: 1.1rem;
+        line-height: 1.7;
+      }
+
+      .actions { flex-wrap: wrap; gap: .75rem; margin-top: 1.8rem; }
+
+      .button {
+        display: inline-flex;
+        min-height: 2.8rem;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #d5ddcf;
+        border-radius: .55rem;
+        padding: .65rem 1rem;
+        color: #35473c;
+        font-size: .9rem;
+        font-weight: 650;
+        text-decoration: none;
+      }
+
+      .button-primary {
+        border-color: #3c6348;
+        background: #3c6348;
+        color: white;
+      }
+
+      .section-heading {
+        margin: 0 0 1rem;
+        font-size: 1rem;
+        font-weight: 700;
+      }
+
+      .endpoints {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: .85rem;
+      }
+
+      .endpoint {
+        min-height: 5.2rem;
+        justify-content: space-between;
+        gap: .75rem;
+        border: 1px solid #e1e4dc;
+        border-radius: .7rem;
+        padding: 1rem;
+        background: rgb(255 255 255 / 55%);
+        text-decoration: none;
+      }
+
+      .endpoint strong { color: #35473c; font-size: .9rem; }
+      .endpoint code { color: #738078; font-size: .75rem; }
+      .endpoint:hover { border-color: #91a688; background: white; }
+      a:focus-visible { outline: 3px solid #9db58e; outline-offset: 3px; }
+
+      footer {
+        margin-top: 2rem;
+        color: #7a847d;
+        font-size: .8rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <a class="brand" href="/">apex<span>.</span></a>
+        <span class="badge">API ONLINE</span>
+      </header>
+
+      <section class="hero" aria-labelledby="page-title">
+        <div class="eyebrow">Sensor Studio · API</div>
+        <h1 id="page-title">A clearer view of your growing environment.</h1>
+        <p class="intro">
+          The Apex API collects soil moisture readings from your devices and
+          makes them available for the Sensor Studio dashboard.
+        </p>
+        <div class="actions">
+          <a class="button button-primary" href="{{ api_url }}">Explore API endpoints</a>
+          <a class="button" href="{{ health_url }}">Check service health</a>
+        </div>
+      </section>
+
+      <section aria-labelledby="endpoints-title">
+        <h2 class="section-heading" id="endpoints-title">Available services</h2>
+        <div class="endpoints">
+          <a class="endpoint" href="{{ readings_url }}">
+            <strong>Sensor readings</strong><code>GET /api/sensors/readings/</code>
+          </a>
+          <a class="endpoint" href="{{ analytics_url }}">
+            <strong>Analytics summary</strong><code>GET /api/sensors/analytics/</code>
+          </a>
+          <a class="endpoint" href="{{ devices_url }}">
+            <strong>Device registry</strong><code>/api/devices/</code>
+          </a>
+        </div>
+      </section>
+
+      <footer>Use the API endpoint index for the full set of routes and authentication URLs.</footer>
+    </main>
+  </body>
+</html>

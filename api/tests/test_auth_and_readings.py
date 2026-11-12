@@ -19,6 +19,31 @@ def user(db):
 
 
 @pytest.mark.django_db
+def test_home_and_api_index(api):
+    r = api.get("/")
+    assert r.status_code == 200
+    assert r["Content-Type"].startswith("text/html")
+    assert b"Apex Sensor Studio" in r.content
+    assert b'href="/api/"' in r.content
+    assert b'href="/health/"' in r.content
+
+    r = api.get("/api/")
+    assert r.status_code == 200
+    assert r.json() == {
+        "auth": {
+            "csrf": "http://testserver/api/auth/csrf/",
+            "signup": "http://testserver/api/auth/signup/",
+            "login": "http://testserver/api/auth/login/",
+            "refresh": "http://testserver/api/auth/refresh/",
+            "logout": "http://testserver/api/auth/logout/",
+        },
+        "devices": "http://testserver/api/devices/",
+        "readings": "http://testserver/api/sensors/readings/",
+        "analytics": "http://testserver/api/sensors/analytics/",
+    }
+
+
+@pytest.mark.django_db
 def test_signup_login_refresh_flow(api):
     r = api.get("/api/auth/csrf/")
     assert r.status_code == 200

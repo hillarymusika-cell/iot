@@ -6,12 +6,36 @@ const defaultApiBase = localHosts.includes(window.location.hostname)
   ? `${window.location.protocol}//${window.location.hostname}:8000`
   : "";
 const API_BASE = (window.IOT_API_BASE || defaultApiBase).replace(/\/$/, "");
-const READING_ENDPOINT = `${API_BASE}/api/sensors/readings/`;
-const REGISTER_ENDPOINT = `${API_BASE}/api/devices/`;
-const AUTH_ENDPOINT = `${API_BASE}/api/auth`;
+const API_ROOT = `${API_BASE}/api/`;
+let apiUrlsPromise;
+
+function getApiUrls() {
+  if (!apiUrlsPromise) {
+    apiUrlsPromise = fetch(API_ROOT, { headers: { Accept: "application/json" } })
+      .then(async (response) => {
+        const urls = await response.json();
+        if (
+          !response.ok ||
+          !urls.auth?.csrf ||
+          !urls.auth?.signup ||
+          !urls.auth?.login ||
+          !urls.auth?.refresh ||
+          !urls.auth?.logout ||
+          !urls.devices ||
+          !urls.readings ||
+          !urls.analytics
+        ) {
+          throw new Error(urls.detail || `Could not load API endpoints (${response.status}).`);
+        }
+        return urls;
+      });
+  }
+  return apiUrlsPromise;
+}
 
 async function getCsrfToken() {
-  const response = await fetch(`${AUTH_ENDPOINT}/csrf/`, {
+  const { auth } = await getApiUrls();
+  const response = await fetch(auth.csrf, {
     headers: { Accept: "application/json" },
     credentials: "include",
   });
@@ -24,7 +48,8 @@ async function getCsrfToken() {
 
 async function refreshAccessToken() {
   const csrfToken = await getCsrfToken();
-  const response = await fetch(`${AUTH_ENDPOINT}/refresh/`, {
+  const { auth } = await getApiUrls();
+  const response = await fetch(auth.refresh, {
     method: "POST",
     headers: { Accept: "application/json", "X-CSRFToken": csrfToken },
     credentials: "include",
@@ -160,7 +185,8 @@ function AuthDialog({ onClose, onSuccess }) {
         throw new Error("Passwords do not match.");
       }
       const csrfToken = await getCsrfToken();
-      const response = await fetch(`${AUTH_ENDPOINT}/${mode === "signup" ? "signup" : "login"}/`, {
+      const { auth } = await getApiUrls();
+      const response = await fetch(auth[mode === "signup" ? "signup" : "login"], {
         method: "POST",
         headers: { Accept: "application/json", "Content-Type": "application/json", "X-CSRFToken": csrfToken },
         credentials: "include",
@@ -259,7 +285,8 @@ function RegistrationDialog({ accessToken, refreshAccess, onClose, onUnauthentic
     setError("");
     try {
       let token = accessToken;
-      let response = await fetch(REGISTER_ENDPOINT, {
+      const { devices } = await getApiUrls();
+      let response = await fetch(devices, {
         method: "POST",
         headers: { Accept: "application/json", "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         credentials: "include",
@@ -271,7 +298,7 @@ function RegistrationDialog({ accessToken, refreshAccess, onClose, onUnauthentic
           onUnauthenticated();
           return;
         }
-        response = await fetch(REGISTER_ENDPOINT, {
+        response = await fetch(devices, {
           method: "POST",
           headers: { Accept: "application/json", "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           credentials: "include",
@@ -385,7 +412,8 @@ function App() {
   async function signOut() {
     try {
       const csrfToken = await getCsrfToken();
-      const response = await fetch(`${AUTH_ENDPOINT}/logout/`, {
+      const { auth: authUrls } = await getApiUrls();
+      const response = await fetch(authUrls.logout, {
         method: "POST",
         headers: { Accept: "application/json", "X-CSRFToken": csrfToken, Authorization: `Bearer ${auth.access}` },
         credentials: "include",
@@ -403,7 +431,8 @@ function App() {
 
   const loadReadings = useCallback(async () => {
     try {
-      const response = await fetch(READING_ENDPOINT, { headers: { Accept: "application/json" } });
+      const { readings } = await getApiUrls();
+      const response = await fetch(readings, { headers: { Accept: "application/json" } });
       if (!response.ok) throw new Error(`Could not load readings (${response.status}).`);
       const payload = await response.json();
       setReadings(normalizeReadings(payload));
@@ -432,7 +461,7 @@ function App() {
 
   return h("main", { className: "page-shell" },
     h("header", { className: "topbar" },
-      h("a", { className: "brand", href: "#top", "aria-label": "Apex home" },
+      h("a", { className: "brand", href: "/", "aria-label": "Apex home" },
         h("span", { className: "brand-mark" }, h(Icon, { name: "leaf" })),
         h("span", null, "apex", h("small", null, "SENSOR STUDIO")),
       ),
