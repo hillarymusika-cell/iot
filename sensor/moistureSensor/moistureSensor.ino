@@ -1,16 +1,9 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
+#include "credentials.h"
+#include "pins.h"
 
-#define wifiSsid "Apex Int Lab"
-#define wifiPassword ""
-#define badLed 15
-#define goodLed 2
-
-const char *device_id = "";
-const char *device_token = "";
-const char *API_url = "";
-
-const int moistureSensorPin = 34;
+const int moistureSensorPin = pins::moisturePin;
 const int drySensorValue = 4095;
 const int wetSensorValue = 0;
 float moisturePercent = 0.0;
@@ -46,13 +39,13 @@ bool connectWifi(const char *wifi, const char *password) {
   WiFi.begin(wifi, password);
   int attempts = 0;
   while (WiFi.status() != WL_CONNECTED && attempts < 10) {
-    ledResponse(badLed, 1, 200);
+    ledResponse(pins::badLed, 1, 200);
     attempts++;
     delay(500);
   }
 
   if (WiFi.status() == WL_CONNECTED) {
-    ledResponse(goodLed, 2, 200);
+    ledResponse(pins::goodLed, 2, 200);
     Serial.println("Connected!");
     Serial.print("IP Address: ");
     Serial.println(WiFi.localIP());
@@ -66,17 +59,17 @@ bool connectWifi(const char *wifi, const char *password) {
 void sendSensorData() {
   readSensorData();
 
-  if (connectWifi(wifiSsid, wifiPassword)) {
+  if (connectWifi(credential::wifi, credentials::wifiPassword)) {
     HTTPClient http;
-    if (!http.begin(API_url)) {
+    if (!http.begin(credentials::server_url)) {
       Serial.println("Unable to initialize the HTTP request.");
       return;
     }
 
     http.addHeader("Content-Type", "application/json");
-    http.addHeader("X-Device-ID", device_id);
+    http.addHeader("X-Device-ID", credentials::device_id);
     String authorization = "Bearer ";
-    authorization += device_token;
+    authorization += credentials::device_token;
     http.addHeader("Authorization", authorization);
 
     String payload = "{\"moisture\":" + String(moisturePercent, 1) + "}";

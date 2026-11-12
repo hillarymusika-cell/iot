@@ -1,9 +1,13 @@
 import { createElement as h, useCallback, useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 
-const API_BASE = window.IOT_API_BASE || "";
-const READING_ENDPOINT = `${API_BASE}/get/sensordata/`;
-const REGISTER_ENDPOINT = `${API_BASE}/post/api/register%20device`;
+const localHosts = ["localhost", "127.0.0.1"];
+const defaultApiBase = localHosts.includes(window.location.hostname)
+  ? `${window.location.protocol}//${window.location.hostname}:8000`
+  : "";
+const API_BASE = (window.IOT_API_BASE || defaultApiBase).replace(/\/$/, "");
+const READING_ENDPOINT = `${API_BASE}/api/sensors/readings/`;
+const REGISTER_ENDPOINT = `${API_BASE}/api/devices/`;
 const AUTH_ENDPOINT = `${API_BASE}/api/auth`;
 
 async function getCsrfToken() {
