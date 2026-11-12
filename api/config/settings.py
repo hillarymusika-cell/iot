@@ -101,6 +101,7 @@ _DEFAULT_CORS = (
     "http://127.0.0.1:3000,"
     "http://localhost:5173,"
     "http://127.0.0.1:5173,"
+    "http://127.0.0.1:4011,"
     "http://localhost:8080,"
     "https://apex-sensor-lab.onrender.com"
 )

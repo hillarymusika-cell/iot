@@ -49,7 +49,7 @@ def api_root(_request):
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", home, name="home"),
-    path("health/", health, name="health"),
+    path("api/health/", health, name="health"),
     path("api/", api_root, name="api-root"),
     path("api/auth/", include("apps.accounts.urls")),
     path("api/devices/", include("apps.devices.urls")),
