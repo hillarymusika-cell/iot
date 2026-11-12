@@ -3,12 +3,12 @@
 #include "credentials.h"
 #include "pins.h"
 
-const int moistureSensorPin = pins::moisturePin;
+const int moistureSensorPin = pins::moisturePin[0];
 const int drySensorValue = 4095;
 const int wetSensorValue = 0;
 float moisturePercent = 0.0;
 
-void ledResponse(int led, int times, int duration) {
+void ledResponse(int &led, int times, int duration) {
   pinMode(led, OUTPUT);
   for (int count = 0; count < times; count++) {
     digitalWrite(led, HIGH);
@@ -39,13 +39,13 @@ bool connectWifi(const char *wifi, const char *password) {
   WiFi.begin(wifi, password);
   int attempts = 0;
   while (WiFi.status() != WL_CONNECTED && attempts < 10) {
-    ledResponse(pins::badLed, 1, 200);
+    ledResponse(pins::badLed[0], 1, 200);
     attempts++;
     delay(500);
   }
 
   if (WiFi.status() == WL_CONNECTED) {
-    ledResponse(pins::goodLed, 2, 200);
+    ledResponse(pins::goodLed[0], 2, 200);
     Serial.println("Connected!");
     Serial.print("IP Address: ");
     Serial.println(WiFi.localIP());
@@ -59,7 +59,7 @@ bool connectWifi(const char *wifi, const char *password) {
 void sendSensorData() {
   readSensorData();
 
-  if (connectWifi(credential::wifi, credentials::wifiPassword)) {
+  if (connectWifi(credentials::wifi, credentials::wifiPassword)) {
     HTTPClient http;
     if (!http.begin(credentials::server_url)) {
       Serial.println("Unable to initialize the HTTP request.");

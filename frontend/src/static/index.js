@@ -147,6 +147,7 @@ function AuthDialog({ onClose, onSuccess }) {
   const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -155,12 +156,19 @@ function AuthDialog({ onClose, onSuccess }) {
     setBusy(true);
     setError("");
     try {
+      if (mode === "signup" && password !== confirmPassword) {
+        throw new Error("Passwords do not match.");
+      }
       const csrfToken = await getCsrfToken();
       const response = await fetch(`${AUTH_ENDPOINT}/${mode === "signup" ? "signup" : "login"}/`, {
         method: "POST",
         headers: { Accept: "application/json", "Content-Type": "application/json", "X-CSRFToken": csrfToken },
         credentials: "include",
-        body: JSON.stringify({ email: email.trim(), password }),
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+          confirm_password: confirmPassword,
+        }),
       });
       const payload = await response.json();
       if (!response.ok || !payload.access) {
@@ -206,6 +214,19 @@ function AuthDialog({ onClose, onSuccess }) {
           type: "password",
           value: password,
         }),
+        mode === "signup" && [
+          h("label", { className: "field-label", htmlFor: "auth-confirm-password", key: "confirm-label" }, "Confirm password"),
+          h("input", {
+            autoComplete: "new-password",
+            className: "text-input",
+            id: "auth-confirm-password",
+            key: "confirm-input",
+            onChange: (event) => setConfirmPassword(event.target.value),
+            required: true,
+            type: "password",
+            value: confirmPassword,
+          }),
+        ],
         error && h("p", { className: "form-error", role: "alert" }, error),
         h("button", { className: "button button-primary full-button", type: "submit", disabled: busy },
           busy ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in",
@@ -214,7 +235,12 @@ function AuthDialog({ onClose, onSuccess }) {
       h("button", {
         className: "auth-switch",
         type: "button",
-        onClick: () => { setMode(mode === "signup" ? "login" : "signup"); setError(""); },
+        onClick: () => {
+          setMode(mode === "signup" ? "login" : "signup");
+          setPassword("");
+          setConfirmPassword("");
+          setError("");
+        },
       }, mode === "signup" ? "Already have an account? Sign in" : "New to Fieldnote? Create an account"),
     ),
   );
