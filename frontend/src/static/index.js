@@ -8,7 +8,7 @@ const defaultApiBase = localHosts.includes(window.location.hostname)
     ? "http://localhost:8000"
     : "";
 const API_BASE = (window.IOT_API_BASE || defaultApiBase).replace(/\/$/, "");
-const API_ROOT = `${API_BASE}/api/config/urls`;
+const API_ROOT = `${API_BASE}/api`;
 const initialAuthMode = new URLSearchParams(window.location.search).get("auth") === "signup" ? "signup" : "login";
 const openSignupFromUrl = initialAuthMode === "signup";
 let apiUrlsPromise;
@@ -197,8 +197,8 @@ function MoistureChart({ readings }) {
     },
       h("defs", null,
         h("linearGradient", { id: "chart-fill", x1: "0", x2: "0", y1: "0", y2: "1" },
-          h("stop", { offset: "0%", stopColor: "#4b8b68", stopOpacity: ".23" }),
-          h("stop", { offset: "100%", stopColor: "#4b8b68", stopOpacity: "0" }),
+          h("stop", { offset: "0%", stopColor: "#388a5d", stopOpacity: ".23" }),
+          h("stop", { offset: "100%", stopColor: "#388a5d", stopOpacity: "0" }),
         ),
       ),
       h("line", { className: "grid-line", x1: "0", x2: width, y1: height / 2, y2: height / 2 }),
@@ -514,7 +514,7 @@ function App() {
       setAnalytics(payload);
       setAnalyticsError("");
     } catch (requestError) {
-      setAnalyticsError(requestError.message || "Could not connect to the analytics service.");
+      setAnalyticsError(requestError.message || "Could not connect to the serevre!.");
     } finally {
       setAnalyticsLoading(false);
     }
@@ -552,7 +552,7 @@ function App() {
     h("header", { className: "topbar" },
       h("a", { className: "brand", href: "/", "aria-label": "Apex home" },
         h("span", { className: "brand-mark" }, h(Icon, { name: "leaf" })),
-        h("span", null, "apex", h("small", null, "SENSOR STUDIO")),
+        h("span", null, "Apex", h("small", null, "SENSOR STUDIO")),
       ),
       h("nav", { className: "topbar-actions", "aria-label": "Dashboard actions" },
         h("span", { className: "connection-label" },
@@ -580,7 +580,7 @@ function App() {
       h("div", null,
         h("p", { className: "eyebrow" }, "YOUR GROWING SPACE"),
         h("h1", null, "Moisture, ", h("em", null, "in focus.")),
-        h("p", { className: "intro-copy" }, "A clear view of what your soil needs, right when it needs it."),
+        h("p", { className: "intro-copy" }, "A illustration of what soil needs, right when required."),
         h("div", { className: "intro-actions" },
           auth?.access
             ? h("button", { className: "button button-primary", type: "button", onClick: openDeviceRegistration }, "Add a device")
@@ -679,7 +679,7 @@ function App() {
       h("div", { className: "analytics-footer" },
         h("span", null, "Refreshes automatically every 30 seconds"),
         h("button", { className: "button button-quiet", type: "button", onClick: loadAnalytics, disabled: analyticsLoading },
-          h(Icon, { name: "refresh" }), analyticsLoading ? "Refreshing…" : "Refresh analytics",
+          h(Icon, { name: "refresh" }), analyticsLoading ? "Loading values…" : "Refresh analytics",
         ),
       ),
     ),
@@ -697,8 +697,8 @@ function App() {
         ? h(MoistureChart, { readings })
         : h("div", { className: "chart-empty" },
             h("div", { className: "chart-empty-mark" }, h(Icon, { name: "leaf" })),
-            h("strong", null, loading ? "Gathering your readings" : "Your chart starts here"),
-            h("span", null, loading ? "Connecting to your sensor…" : "Once your sensor sends readings, they’ll appear here."),
+            h("strong", null, loading ? "Syncing readings from server..." : "Iot anlytics chart starts here"),
+            h("span", null, loading ? "Connecting to  sensor…" : "Waiting for sensor readinds"),
           ),
       h("div", { className: "history-summary" },
         h("span", null, `${readings.length} ${readings.length === 1 ? "reading" : "readings"} available`),
