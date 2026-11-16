@@ -21,16 +21,16 @@ def home(request):
 
 def api_root(_request):
     auth_endpoints = {
-        "csrf": "api/auth/csrf",
-        "signup": "api/auth/signup",
-        "login": "api/auth/login",
-        "refresh": "api/auth/refresh",
-        "logout": "api/auth/logout",
+        "csrf": "csrf",
+        "signup": "signup",
+        "login": "login",
+        "refresh": "refresh",
+        "logout": "logout",
     }
     endpoints = {
-        "devices": "api/devices",
-        "readings": "api/senseros/readings",
-        "analytics": "api/sensors/analytics",
+        "devices": "devices",
+        "readings": "readings",
+        "analytics": "analytics",
     }
     return JsonResponse(
         {
@@ -48,7 +48,7 @@ def api_root(_request):
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("/", home, name="home"),
+    path("", home, name="home"),
     path("api/health/", health, name="health"),
     path("api/", api_root, name="api-root"),
     path("", include("apps.accounts.urls")),

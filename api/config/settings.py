@@ -12,7 +12,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG", "true").lower() in ("1", "true", "yes")
 ALLOWED_HOSTS = [
     h.strip()
-    for h in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+    for h in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1,testserver").split(",")
     if h.strip()
 ]
 
@@ -95,7 +95,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 FRONTEND_URL = (os.getenv("FRONTEND_URL") or "http://localhost:8080").rstrip("/")
 
-# Frontend: https://apex-sensor-lab.onrender.com
 _DEFAULT_CORS = (
     "http://localhost:3000,"
     "http://127.0.0.1:3000,"
@@ -113,7 +112,7 @@ CORS_ALLOWED_ORIGINS = [
     if o.strip()
 ]
 
-# CSRF can be overridden separately; defaults to same list as CORS
+
 CSRF_TRUSTED_ORIGINS = [
     o.strip()
     for o in os.getenv(

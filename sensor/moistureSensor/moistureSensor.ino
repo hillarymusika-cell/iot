@@ -90,5 +90,5 @@ void setup() {
 
 void loop() {
   sendSensorData();
-  delay(60000);
+  delay(10000);
 }

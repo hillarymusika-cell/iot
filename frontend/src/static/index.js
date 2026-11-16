@@ -14,7 +14,9 @@ const openSignupFromUrl = initialAuthMode === "signup";
 let apiUrlsPromise;
 
 function resolveApiUrl(path) {
-  return new URL(path, `${API_BASE || window.location.origin}/`).href;
+  const base = (API_BASE || window.location.origin).replace(/\/$/, "");
+  const url = path?.startsWith("/") ? path : `/${path ?? ""}`;
+  return new URL(url, `${base}/`).href;
 }
 
 function getApiUrls() {
