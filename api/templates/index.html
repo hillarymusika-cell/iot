@@ -142,7 +142,7 @@
   <body>
     <main>
       <header>
-        <a class="brand" href="{{ dashboard_url }}">apex<span>.</span></a>
+        <a class="brand" href="{{ dashboard_url|default:'/' }}">apex<span>.</span></a>
         <span class="badge">SENSOR STUDIO</span>
       </header>
 
@@ -154,8 +154,8 @@
           growing space healthy with data from your connected sensors.
         </p>
         <nav class="actions" aria-label="Get started">
-          <a class="button button-primary" href="{{ dashboard_url }}/?auth=signup">Create account</a>
-          <a class="button" href="{{ dashboard_url }}/?view=analytics">View analytics</a>
+          <a class="button button-primary" href="{{ dashboard_url }}?auth=signup">Create account</a>
+          <a class="button" href="{{ dashboard_url }}?view=analytics">View analytics</a>
         </nav>
       </section>
 
