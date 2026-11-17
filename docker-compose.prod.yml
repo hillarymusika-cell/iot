@@ -1,0 +1,29 @@
+# Production overrides — use with base compose:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+# Requires a real .env with at least:
+#   SECRET_KEY, ALLOWED_HOSTS, FRONTEND_URL, CORS_ALLOWED_ORIGINS, CSRF_TRUSTED_ORIGINS
+
+services:
+  backend:
+    image: apex-sensor-api:prod
+    environment:
+      DEBUG: "false"
+      WEB_CONCURRENCY: ${WEB_CONCURRENCY:-3}
+      # Render / reverse proxies set X-Forwarded-Proto; Django trusts via settings
+    # Do not publish DB volume host path publicly; named volume is enough
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  frontend:
+    image: apex-sensor-web:prod
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "3"
