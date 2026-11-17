@@ -1,10 +1,11 @@
-#ifndef pin_h
-#define pin_h
+#ifndef PINS_H
+#define PINS_H
 
-namespace pins{
-    int badLed[]= {15};
-    int goodLed[] = {2};
-    int moisturePin[] = {34};
+namespace pins {
+  // GPIO assignments for the moisture node (ESP32)
+  const int badLed[] = {15};
+  const int goodLed[] = {2};
+  const int moisturePin[] = {34};  // ADC1 channel — valid while Wi-Fi is active
 }
 
 #endif
