@@ -3,12 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f5f5ee" />
-    <meta name="description" content="apex sensor lab — a live dashboard for your soil moisture sensors." />
+    <meta name="theme-color" content="#f3f1e6" />
+    <meta name="color-scheme" content="light" />
+    <meta
+      name="description"
+      content="Apex Sensor Studio — live soil moisture dashboard for your connected ESP32 sensors."
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./src/static/index.css" />
@@ -20,10 +24,15 @@
         }
       }
     </script>
-    <title>Apex — Sensor Studio</title>
+    <title>Apex Sensor Studio</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root" role="application" aria-label="Apex Sensor Studio dashboard"></div>
+    <noscript>
+      <p style="font-family: system-ui, sans-serif; max-width: 32rem; margin: 3rem auto; padding: 0 1.25rem; color: #29392a; line-height: 1.6;">
+        Apex Sensor Studio needs JavaScript enabled to show live moisture readings and analytics.
+      </p>
+    </noscript>
     <script type="module" src="./src/static/index.js"></script>
   </body>
 </html>
