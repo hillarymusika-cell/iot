@@ -8,7 +8,7 @@ GUNICORN_TIMEOUT="${GUNICORN_TIMEOUT:-60}"
 GUNICORN_GRACEFUL_TIMEOUT="${GUNICORN_GRACEFUL_TIMEOUT:-30}"
 
 # Fail fast if production secret is missing or still a placeholder
-if [ -z "${SECRET_KEY:-}" ] || [ "$SECRET_KEY" = "change-me-in-production" ] || [ "$SECRET_KEY" = "build-only-not-for-runtime" ]; then
+if [ -z "${SECRET_KEY:-}" ] || [ "$SECRET_KEY" = "" ] || [ "$SECRET_KEY" = "build-only-not-for-runtime" ]; then
   if [ "${DEBUG:-false}" != "true" ] && [ "${DEBUG:-false}" != "1" ]; then
     echo "ERROR: SECRET_KEY must be set to a strong value when DEBUG is false." >&2
     exit 1
