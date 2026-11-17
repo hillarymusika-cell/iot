@@ -71,7 +71,7 @@ class AnalyticsSummaryView(APIView):
         since = timezone.now() - timedelta(hours=hours)
         qs = SensorReading.objects.filter(recorded_at__gte=since)
 
-        device_id = request.query_params.get("device_id")
+        device_id = request.query_params.get("device_id" ) or  "c5ef8566-2532-4da8-96df-b98db76f8fe4"
         if device_id:
             qs = qs.filter(device_id=device_id)
 
