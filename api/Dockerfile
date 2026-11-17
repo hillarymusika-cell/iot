@@ -1,15 +1,4 @@
-# syntax=docker/dockerfile:1.7
-# Apex Sensor Studio — Django API (SQLite + Gunicorn)
-#
-# IMPORTANT — build context must be the api/ folder (this directory):
-#
-#   docker compose          context: ./api
-#   docker build -f api/Dockerfile api
-#   Render                  Root Directory = api
-#                           Dockerfile Path = Dockerfile
-#
-# Do NOT set Render Root Directory to blank/repo root with this file,
-# or COPY requirements.txt will miss (or hit the wrong stub file).
+
 
 FROM python:3.12-slim-bookworm AS deps
 
@@ -22,7 +11,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /build
 
-# Context is api/ → host path api/requirements.txt appears as ./requirements.txt here
 COPY requirements.txt .
 RUN python -m venv /opt/venv \
  && pip install --upgrade pip \
@@ -54,7 +42,7 @@ RUN apt-get update \
  && mkdir -p /data /app \
  && chown -R app:app /data /app
 
-WORKDIR /app
+WORKDIR /
 
 COPY --from=deps /opt/venv /opt/venv
 COPY --chown=app:app . .
