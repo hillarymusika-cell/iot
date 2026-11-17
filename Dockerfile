@@ -13,8 +13,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     VIRTUAL_ENV=/opt/venv \
     PATH="/opt/venv/bin:$PATH"
 
-WORKDIR /build
-COPY api/requirements.txt .
+WORKDIR /api
+COPY requirements.txt .
 RUN python -m venv /opt/venv \
  && pip install --upgrade pip \
  && pip install -r requirements.txt
