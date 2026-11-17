@@ -1,13 +1,15 @@
 # syntax=docker/dockerfile:1.7
 # Apex Sensor Studio — Django API (SQLite + Gunicorn)
 #
-# Build context MUST be the api/ directory (where requirements.txt lives):
-#   docker compose  →  context: ./api
-#   CLI             →  docker build -f api/Dockerfile api
-#   Render          →  Root Directory = api
+# Supported build contexts:
+#   A) context = api/     (docker compose, Render Root Directory = api)
+#        → requirements.txt is at context root
+#   B) context = repo root (Render Dockerfile Path = api/Dockerfile, Root = .)
+#        → requirements live at api/requirements.txt
 #
-# Runtime env (required in prod):
-#   SECRET_KEY, ALLOWED_HOSTS, FRONTEND_URL, CORS_ALLOWED_ORIGINS, CSRF_TRUSTED_ORIGINS
+# CLI examples:
+#   docker build -f api/Dockerfile api
+#   docker build -f api/Dockerfile .
 
 FROM python:3.12-slim-bookworm AS deps
 
@@ -20,11 +22,25 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /build
 
-# requirements.txt is at the root of the build context (api/requirements.txt on the host)
-COPY requirements.txt /build/requirements.txt
-RUN python -m venv /opt/venv \
- && pip install --upgrade pip \
- && pip install -r /build/requirements.txt
+# Bring in whichever layout the context provides (wildcards allow missing paths on BuildKit)
+COPY requirements.txt* api/requirements.txt* ./
+
+RUN set -eux; \
+    if [ -f requirements.txt ] && ! grep -q '^-r ' requirements.txt 2>/dev/null; then \
+      REQ=requirements.txt; \
+    elif [ -f api/requirements.txt ]; then \
+      REQ=api/requirements.txt; \
+    elif [ -f requirements.txt ]; then \
+      REQ=requirements.txt; \
+    else \
+      echo "ERROR: could not find requirements.txt in build context" >&2; \
+      find . -maxdepth 3 -type f -print >&2; \
+      exit 1; \
+    fi; \
+    echo "Using dependency file: $REQ"; \
+    python -m venv /opt/venv; \
+    pip install --upgrade pip; \
+    pip install -r "$REQ"
 
 FROM python:3.12-slim-bookworm AS runtime
 
@@ -55,13 +71,24 @@ RUN apt-get update \
 WORKDIR /app
 
 COPY --from=deps /opt/venv /opt/venv
-COPY --chown=app:app . .
 
-RUN chmod +x /app/entrypoint.sh \
- && SECRET_KEY=build-only-not-for-runtime \
-    DEBUG=false \
-    ALLOWED_HOSTS=localhost \
-    python manage.py collectstatic --noinput
+# App sources: context may be api/ or repo root
+COPY --chown=app:app . /tmp/context/
+RUN set -eux; \
+    if [ -f /tmp/context/manage.py ]; then \
+      cp -a /tmp/context/. /app/; \
+    elif [ -f /tmp/context/api/manage.py ]; then \
+      cp -a /tmp/context/api/. /app/; \
+    else \
+      echo "ERROR: manage.py not found (expected api app in context)" >&2; \
+      find /tmp/context -maxdepth 3 -type f -print >&2; \
+      exit 1; \
+    fi; \
+    rm -rf /tmp/context; \
+    chmod +x /app/entrypoint.sh; \
+    SECRET_KEY=build-only-not-for-runtime DEBUG=false ALLOWED_HOSTS=localhost \
+      python manage.py collectstatic --noinput; \
+    chown -R app:app /app
 
 USER app
 
