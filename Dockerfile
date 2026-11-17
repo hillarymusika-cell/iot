@@ -44,16 +44,15 @@ COPY --from=deps /opt/venv /opt/venv
 COPY --chown=app:app . /app/
 
 RUN test -f /app/manage.py \
-    && test -f /app/entrypoint.sh
+    && test -f /app/entrypoint.sh \
+    && chmod 755 /app/entrypoint.sh \
+    && python -m compileall -q /app
 
-RUN chmod +x /app/entrypoint.sh
-
-RUN SECRET_KEY=build-only-not-for-runtime \
+RUN SECRET_KEY=ci-build-only-secret-key \
     DEBUG=false \
     ALLOWED_HOSTS=localhost \
-    python manage.py collectstatic --noinput --verbosity 2
-
-RUN chown -R app:app /app /data
+    SQLITE_PATH=/tmp/build.sqlite3 \
+    python manage.py check
 
 USER app
 
@@ -63,4 +62,5 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
     CMD curl -fsS "http://127.0.0.1:${PORT:-8000}/health/" || exit 1
 
 ENTRYPOINT ["/app/entrypoint.sh"]
+
 
