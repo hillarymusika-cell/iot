@@ -1,18 +1,3 @@
-/**
- * Moisture node → Django sensors API (master)
- *
- * Contract (api/apps/sensors):
- *   POST /api/sensors/readings/
- *   Headers:
- *     Content-Type: application/json
- *     Authorization: Bearer <device_token>
- *     X-Device-ID: <device uuid>
- *   Body: {"moisture": <0-100 float>}   // optional: temperature, humidity
- *   Success: HTTP 201
- *
- * Auth: DeviceTokenAuthentication (api/apps/sensors/authentication.py)
- */
-
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include "credentials.h"
