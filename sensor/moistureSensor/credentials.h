@@ -1,22 +1,11 @@
-#ifndef CREDENTIALS_H
-#define CREDENTIALS_H
+#ifndef credential_h
+#define credential_h
 
-// Copy from credentials.example.h and fill after POST /api/devices/
-// (returns device_id + token). Do not commit real secrets.
-namespace credentials {
-  // Wi-Fi station the ESP32 joins
-  const char wifi[] = "YOUR_WIFI_SSID";
-  const char wifiPassword[] = "YOUR_WIFI_PASSWORD";
-
-  // Must match api/apps/sensors/urls.py → path("api/sensors/readings/", ...)
-  // Local Docker/API:  http://<host-lan-ip>:8000/api/sensors/readings/
-  // Deployed example:  https://your-api-host/api/sensors/readings/
-  // Note: localhost is unreachable from the ESP32 itself.
-  const char server_url[] = "http://192.168.1.10:8000/api/sensors/readings/";
-
-  // From device registration response: {"device_id": "...", "token": "..."}
-  const char device_id[] = "00000000-0000-0000-0000-000000000000";
-  const char device_token[] = "REPLACE_WITH_DEVICE_TOKEN";
+namespace credentials{
+    const char  wifi[]= "Galaxy A05 0797";
+    const char wifiPassword[] = "12345678";
+    const char server_url[] = "http://localhost:8000/api/sensors/readings/";
+    const char device_id[] = "c5ef8566-2532-4da8-96df-b98db76f8fe4";
+    const char device_token[] = "g2WTdIQRbXoygMWzMfsl71XrIlMMpU7BY10EliuHjyk";
 }
-
 #endif
