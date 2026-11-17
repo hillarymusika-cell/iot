@@ -1,7 +1,11 @@
 # syntax=docker/dockerfile:1.7
 # Apex Sensor Studio — Django API (SQLite + Gunicorn)
-# Deploy: Render / Fly / any Docker host
-#   Root Directory = api   OR   Dockerfile Path = api/Dockerfile
+#
+# Build context MUST be the api/ directory (where requirements.txt lives):
+#   docker compose  →  context: ./api
+#   CLI             →  docker build -f api/Dockerfile api
+#   Render          →  Root Directory = api
+#
 # Runtime env (required in prod):
 #   SECRET_KEY, ALLOWED_HOSTS, FRONTEND_URL, CORS_ALLOWED_ORIGINS, CSRF_TRUSTED_ORIGINS
 
@@ -14,11 +18,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     VIRTUAL_ENV=/opt/venv \
     PATH="/opt/venv/bin:$PATH"
 
-WORKDIR api/
-COPY requirements.txt .
+WORKDIR /build
+
+# requirements.txt is at the root of the build context (api/requirements.txt on the host)
+COPY requirements.txt /build/requirements.txt
 RUN python -m venv /opt/venv \
  && pip install --upgrade pip \
- && pip install -r requirements.txt
+ && pip install -r /build/requirements.txt
 
 FROM python:3.12-slim-bookworm AS runtime
 
@@ -38,7 +44,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     GUNICORN_GRACEFUL_TIMEOUT=30 \
     DEBUG=false
 
-# curl for HEALTHCHECK only
 RUN apt-get update \
  && apt-get install -y --no-install-recommends curl \
  && rm -rf /var/lib/apt/lists/* \
@@ -52,7 +57,6 @@ WORKDIR /app
 COPY --from=deps /opt/venv /opt/venv
 COPY --chown=app:app . .
 
-# collectstatic needs a throwaway SECRET_KEY at build time
 RUN chmod +x /app/entrypoint.sh \
  && SECRET_KEY=build-only-not-for-runtime \
     DEBUG=false \
@@ -63,7 +67,6 @@ USER app
 
 EXPOSE 8000
 
-# /health/ is served by config.urls (also /api/health/)
 HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
   CMD curl -fsS "http://127.0.0.1:${PORT:-8000}/health/" || exit 1
 
