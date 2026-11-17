@@ -43,12 +43,17 @@ WORKDIR /app
 COPY --from=deps /opt/venv /opt/venv
 COPY --chown=app:app . /app/
 
-RUN chmod +x /app/entrypoint.sh \
-    && SECRET_KEY=build-only-not-for-runtime \
-       DEBUG=false \
-       ALLOWED_HOSTS=localhost \
-       python manage.py collectstatic --noinput --verbosity 2 \
-    && chown -R app:app /app /data
+RUN test -f /app/manage.py \
+    && test -f /app/entrypoint.sh
+
+RUN chmod +x /app/entrypoint.sh
+
+RUN SECRET_KEY=build-only-not-for-runtime \
+    DEBUG=false \
+    ALLOWED_HOSTS=localhost \
+    python manage.py collectstatic --noinput --verbosity 2
+
+RUN chown -R app:app /app /data
 
 USER app
 
