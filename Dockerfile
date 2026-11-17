@@ -13,8 +13,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     VIRTUAL_ENV=/opt/venv \
     PATH="/opt/venv/bin:$PATH"
 
-WORKDIR /api
-COPY requirements.txt .
+WORKDIR /build
+
+# Canonical requirements live in api/; root requirements.txt is only a pointer.
+# Copy the real file so pip does not try to resolve -r api/requirements.txt
+# inside a stage that has no api/ tree.
+COPY api/requirements.txt .
 RUN python -m venv /opt/venv \
  && pip install --upgrade pip \
  && pip install -r requirements.txt
@@ -29,6 +33,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PORT=8000 \
     SQLITE_PATH=/data/db.sqlite3 \
     WEB_CONCURRENCY=2 \
+    GUNICORN_TIMEOUT=60 \
+    GUNICORN_GRACEFUL_TIMEOUT=30 \
     DEBUG=false
 
 RUN apt-get update \

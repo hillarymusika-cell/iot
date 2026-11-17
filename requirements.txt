@@ -1,2 +1,12 @@
-# IoT API dependencies — canonical file is api/requirements.txt
--r api/requirements.txt
+# IoT API dependencies
+# Canonical source of truth is api/requirements.txt.
+# This root file exists for tools that expect requirements.txt at repo root.
+# The production Dockerfile (this directory) copies api/requirements.txt directly.
+
+Django==5.0.6
+djangorestframework==3.15.2
+djangorestframework-simplejwt==5.3.1
+django-cors-headers==4.4.0
+gunicorn==22.0.0
+python-dotenv==1.0.1
+whitenoise==6.7.0
