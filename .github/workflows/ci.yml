@@ -16,7 +16,8 @@ jobs:
     env:
       SECRET_KEY: ci-secret-key
       DEBUG: "true"
-      ALLOWED_HOSTS: localhost,127.0.0.1
+      ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+      FRONTEND_URL: http://localhost:8080
 
     steps:
       - uses: actions/checkout@v4
@@ -59,6 +60,33 @@ jobs:
           context: ./api
           file: ./api/Dockerfile
           push: false
+          load: true
           tags: iot-backend:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Smoke-test container health endpoint
+        run: |
+          docker run -d --name iot-api-ci \
+            -e SECRET_KEY=ci-secret-key \
+            -e DEBUG=true \
+            -e ALLOWED_HOSTS=localhost,127.0.0.1 \
+            -e FRONTEND_URL=http://localhost:8080 \
+            -p 8000:8000 \
+            iot-backend:ci
+
+          # Wait for gunicorn + migrate
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8000/health/ >/dev/null; then
+              echo "health ok"
+              curl -fsS http://127.0.0.1:8000/api/health/
+              docker rm -f iot-api-ci
+              exit 0
+            fi
+            sleep 2
+          done
+
+          echo "health check failed"
+          docker logs iot-api-ci || true
+          docker rm -f iot-api-ci || true
+          exit 1

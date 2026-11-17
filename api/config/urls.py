@@ -49,6 +49,8 @@ def api_root(_request):
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", home, name="home"),
+    # Both paths kept so Docker HEALTHCHECK, nginx, and README stay aligned
+    path("health/", health, name="health-root"),
     path("api/health/", health, name="health"),
     path("api/", api_root, name="api-root"),
     path("", include("apps.accounts.urls")),

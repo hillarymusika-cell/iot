@@ -24,7 +24,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PATH="/opt/venv/bin:$PATH" \
     DJANGO_SETTINGS_MODULE=config.settings \
     PORT=8000 \
-    SQLITE_PATH=/data/db.sqlite3
+    SQLITE_PATH=/data/db.sqlite3 \
+    SECRET_KEY=build-time-only-not-for-prod \
+    DEBUG=false \
+    ALLOWED_HOSTS=localhost,127.0.0.1
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends curl \
@@ -40,12 +43,13 @@ COPY --from=deps /opt/venv /opt/venv
 COPY --chown=app:app . .
 
 RUN chmod +x /app/entrypoint.sh \
- && python manage.py collectstatic --noinput || true
+ && SECRET_KEY=build-time-only-not-for-prod python manage.py collectstatic --noinput
 
 USER app
 
 EXPOSE 8000
 
+# Matches path("health/", ...) and path("api/health/", ...) in config/urls.py
 HEALTHCHECK --interval=30s --timeout=5s --start-period=45s --retries=3 \
   CMD curl -fsS "http://127.0.0.1:${PORT:-8000}/health/" || exit 1
 

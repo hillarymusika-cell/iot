@@ -13,13 +13,12 @@ from .serializers import ReadingIngestSerializer, SensorReadingSerializer
 
 class ReadingListIngestView(APIView):
     """
-    GET  /api/sensors/analytics/  — public dashboard feed (matches frontend).
-    POST /api/sensors/readings/  — called by ESP32 devices with device token.
+    GET  /api/sensors/readings/   — public dashboard time-series.
+    POST /api/sensors/readings/   — ESP32 ingest (device token required).
     """
 
     def get_authenticators(self):
         return [DeviceTokenAuthentication()]
-        
 
     def get_permissions(self):
         return [permissions.AllowAny()]
@@ -59,7 +58,7 @@ class ReadingListIngestView(APIView):
 
 
 class AnalyticsSummaryView(APIView):
-    """GET /api/sensors/analytics/  — aggregated stats for the dashboard."""
+    """GET /api/sensors/analytics/ — aggregated stats for the dashboard."""
 
     permission_classes = [permissions.AllowAny]
 
@@ -68,7 +67,8 @@ class AnalyticsSummaryView(APIView):
         since = timezone.now() - timedelta(hours=hours)
         qs = SensorReading.objects.filter(recorded_at__gte=since)
 
-        device_id = request.query_params.get("device_id" ) or  "c5ef8566-2532-4da8-96df-b98db76f8fe4"
+        # Optional filter only — do not hardcode a device UUID (breaks multi-device + tests)
+        device_id = request.query_params.get("device_id")
         if device_id:
             qs = qs.filter(device_id=device_id)
 

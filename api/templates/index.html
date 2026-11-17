@@ -438,7 +438,7 @@
   <body>
     <main>
       <header>
-        <a class="brand" href="{{ dashboard_url|default:'/' }}">
+        <a class="brand" href="{{ dashboard_url|default:'/' }}/">
           <span class="brand-mark" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 3c-2.5 4-6 6.5-6 10a6 6 0 0 0 12 0c0-3.5-3.5-6-6-10z" />
@@ -458,8 +458,9 @@
             growing space healthy with data from your connected sensors.
           </p>
           <nav class="actions" aria-label="Get started">
-            <a class="button button-primary" href="{{ dashboard_url }}?auth=signup">Create account</a>
-            <a class="button" href="{{ dashboard_url }}?view=analytics">View analytics</a>
+            {# Trailing slash before ? matches test_home_and_api_index (FRONTEND_URL rstrip + /?query) #}
+            <a class="button button-primary" href="{{ dashboard_url }}/?auth=signup">Create account</a>
+            <a class="button" href="{{ dashboard_url }}/?view=analytics">View analytics</a>
           </nav>
         </div>
 
