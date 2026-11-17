@@ -77,6 +77,7 @@ void sendSensorData() {
     Serial.println(response);
     Serial.println(http.getString());
     http.end();
+    Serial.println("Data sent to remote");
   } else {
     Serial.println("Sensor data was not sent because Wi-Fi is unavailable.");
   }

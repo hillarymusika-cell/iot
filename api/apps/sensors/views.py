@@ -13,18 +13,15 @@ from .serializers import ReadingIngestSerializer, SensorReadingSerializer
 
 class ReadingListIngestView(APIView):
     """
-    GET  /api/sensors/readings/  — public dashboard feed (matches frontend).
+    GET  /api/sensors/analytics/  — public dashboard feed (matches frontend).
     POST /api/sensors/readings/  — called by ESP32 devices with device token.
     """
 
     def get_authenticators(self):
-        if self.request.method == "POST":
-            return [DeviceTokenAuthentication()]
-        return []
+        return [DeviceTokenAuthentication()]
+        
 
     def get_permissions(self):
-        if self.request.method == "POST":
-            return [permissions.IsAuthenticated()]
         return [permissions.AllowAny()]
 
     def get(self, request):
