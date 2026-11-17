@@ -1,10 +1,25 @@
 
-FROM python:3.12-slim-bookworm
+FROM python:3.12-slim-bookworm AS deps
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_NO_CACHE_DIR=1 \
+    VIRTUAL_ENV=/opt/venv \
+    PATH="/opt/venv/bin:$PATH"
+
+WORKDIR /build
+
+COPY requirements.txt .
+
+RUN python -m venv /opt/venv \
+    && pip install --upgrade pip \
+    && pip install -r requirements.txt
+
+FROM python:3.12-slim-bookworm AS runtime
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
     VIRTUAL_ENV=/opt/venv \
     PATH="/opt/venv/bin:$PATH" \
     DJANGO_SETTINGS_MODULE=config.settings \
@@ -25,13 +40,8 @@ RUN apt-get update \
 
 WORKDIR /app
 
-COPY api/requirements.txt /tmp/requirements.txt
-
-RUN python -m venv /opt/venv \
-    && pip install --upgrade pip \
-    && pip install -r /tmp/requirements.txt
-
-COPY --chown=app:app api/ /app/
+COPY --from=deps /opt/venv /opt/venv
+COPY --chown=app:app . /app/
 
 RUN chmod +x /app/entrypoint.sh \
     && SECRET_KEY=build-only-not-for-runtime \
