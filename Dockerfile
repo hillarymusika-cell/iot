@@ -42,12 +42,11 @@ WORKDIR /api
 
 COPY --from=deps /opt/venv /opt/venv
 COPY --chown=app:app . .
-
-RUN set -eux;\
-    test -f /api/manage.py; \
-    test -f /api/entrypoint.sh;\
-    chmod 755 /api/entrypoint.sh; \
-    python -m compileall -q /api
+RUN pwd && ls -la /api/
+RUN test -f /api/manage.py
+RUN test -f /api/entrypoint.sh
+RUN chmod 755 /api/entrypoint.sh
+RUN python -m compileall -q /api
 
 RUN SECRET_KEY=ci-build-only-secret-key \
     DEBUG=false \
