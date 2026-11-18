@@ -41,12 +41,13 @@ RUN apt-get update \
 WORKDIR /api
 
 COPY --from=deps /opt/venv /opt/venv
-COPY --chown=app:app . /app/
+COPY --chown=app:app . .
 
-RUN test -f /api/manage.py \
-    && test -f /api/entrypoint.sh \
-    && chmod 755 /api/entrypoint.sh \
-    && python -m compileall -q /api
+RUN set -eux;\
+    test -f /api/manage.py; \
+    test -f /api/entrypoint.sh;\
+    chmod 755 /api/entrypoint.sh; \
+    python -m compileall -q /api
 
 RUN SECRET_KEY=ci-build-only-secret-key \
     DEBUG=false \
