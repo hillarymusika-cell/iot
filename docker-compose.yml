@@ -35,8 +35,8 @@ services:
 
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: frontend/Dockerfile
     image: apex-sensor-web:local
     ports:
       - "${WEB_PORT:-8080}:80"

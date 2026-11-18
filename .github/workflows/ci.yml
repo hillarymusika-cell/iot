@@ -76,7 +76,7 @@ jobs:
             file: ./api/Dockerfile
             image: iot-backend:ci
           - name: frontend
-            context: ./frontend
+            context: .
             file: ./frontend/Dockerfile
             image: iot-frontend:ci
     steps:

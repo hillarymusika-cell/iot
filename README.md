@@ -88,6 +88,18 @@ Notes:
 
 Persistent disk (optional): mount at `/data` and set `SQLITE_PATH=/data/db.sqlite3`.
 
+### Render (frontend service)
+
+Create a separate Docker Web Service for the dashboard:
+
+| Setting | Value |
+|---------|--------|
+| Root Directory | repository root |
+| Dockerfile Path | `frontend/Dockerfile` |
+| Health Check Path | `/health/` |
+
+The frontend uses `https://firmwarebackend.onrender.com` as its production API origin. Set the API service's CORS and CSRF trusted origins to the frontend service's exact `https://...onrender.com` URL.
+
 ## API map
 
 | Method | Path | Auth | Purpose |

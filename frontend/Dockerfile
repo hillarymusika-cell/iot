@@ -1,18 +1,18 @@
 # syntax=docker/dockerfile:1.7
-# Static dashboard + nginx reverse-proxy to backend:8000 (compose network)
+# Static dashboard served by nginx; API requests use the configured API origin.
 
 FROM nginx:1.27-alpine
 
 LABEL org.opencontainers.image.title="apex-sensor-web" \
       org.opencontainers.image.description="Apex Sensor Studio dashboard"
 
-# wget used by Compose healthcheck
+# wget used by container health checks
 RUN apk add --no-cache wget \
  && rm -rf /usr/share/nginx/html/*
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY index.html /usr/share/nginx/html/index.html
-COPY src /usr/share/nginx/html/src
+COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
+COPY frontend/index.html /usr/share/nginx/html/index.html
+COPY frontend/src /usr/share/nginx/html/src
 
 # Non-root is awkward with official nginx; keep default user, tighten conf instead
 EXPOSE 80
