@@ -44,6 +44,7 @@ WORKDIR /app
 
 COPY --from=deps /opt/venv /opt/venv
 COPY --chown=app:app . /app
+COPY --chown=app:app entrypoint.sh /app/entrypoint.sh
 
 RUN chmod 755 /app/entrypoint.sh \
  && python -m compileall -q /app

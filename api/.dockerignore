@@ -21,3 +21,4 @@ requirements-dev.txt
 Dockerfile*
 docker-compose*
 *.md
+!entrypoint.sh
