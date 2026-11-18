@@ -18,10 +18,7 @@ on:
       - master
       - main
   workflow_dispatch:
-
-permissions:
-  contents: read
-
+  
 jobs:
   backend:
     name: Backend checks
