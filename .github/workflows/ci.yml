@@ -19,8 +19,8 @@ on:
       - main
   workflow_dispatch:
 
-permissions:
-  contents: read
+#permissions:
+  #contents: read
 
 concurrency:
   group: ci-${{ github.ref }}
