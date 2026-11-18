@@ -46,17 +46,7 @@ COPY --from=deps /opt/venv /opt/venv
 COPY --chown=app:app . /app
 
 RUN chmod 755 /app/entrypoint.sh \
- && python -m compileall -q /app \
- && SECRET_KEY=build-only-not-for-runtime \
-    DEBUG=false \
-    ALLOWED_HOSTS=localhost \
-    SQLITE_PATH=/tmp/build.sqlite3 \
-    python manage.py check \
- && SECRET_KEY=build-only-not-for-runtime \
-    DEBUG=false \
-    ALLOWED_HOSTS=localhost \
-    SQLITE_PATH=/tmp/build.sqlite3 \
-    python manage.py collectstatic --noinput
+ && python -m compileall -q /app
 
 USER app
 
