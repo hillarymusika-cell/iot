@@ -68,6 +68,10 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": os.getenv("SQLITE_PATH", str(BASE_DIR / "db.sqlite3")),
+        "OPTIONS": {
+            # Safer concurrent reads when multiple gunicorn workers share one file
+            "timeout": 20,
+        },
     }
 }
 
@@ -112,7 +116,6 @@ CORS_ALLOWED_ORIGINS = [
     if o.strip()
 ]
 
-
 CSRF_TRUSTED_ORIGINS = [
     o.strip()
     for o in os.getenv(
@@ -121,6 +124,19 @@ CSRF_TRUSTED_ORIGINS = [
     ).split(",")
     if o.strip()
 ]
+
+# Trust TLS terminated by Render / nginx / load balancer
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
+
+if not DEBUG:
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    # Only enable HSTS when you always serve HTTPS in production
+    if os.getenv("ENABLE_HSTS", "false").lower() in ("1", "true", "yes"):
+        SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "31536000"))
+        SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
@@ -141,12 +157,11 @@ SIMPLE_JWT = {
 }
 
 JWT_AUTH_COOKIE = "refresh_token"
-# Cross-site frontend (apex-sensor-lab.onrender.com) needs SameSite=None + Secure
+# Cross-site frontend needs SameSite=None + Secure when not DEBUG
 JWT_AUTH_SECURE = not DEBUG
 JWT_AUTH_HTTPONLY = True
 JWT_AUTH_SAMESITE = "None" if not DEBUG else "Lax"
 
-# Django session/CSRF cookies for cross-origin SPA on Render
 CSRF_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SAMESITE = "None" if not DEBUG else "Lax"
 SESSION_COOKIE_SECURE = not DEBUG
