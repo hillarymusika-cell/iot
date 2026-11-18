@@ -15,7 +15,7 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./src/static/index.css" />
+    <link rel="stylesheet" href="./src/static/index.css?v=20261119" />
     <script type="importmap">
       {
         "imports": {
@@ -23,6 +23,10 @@
           "react-dom/client": "https://esm.sh/react-dom@18.3.1/client?external=react"
         }
       }
+    </script>
+    <!-- Pin API origin before the app module loads (fixes empty API_BASE on hosted frontend). -->
+    <script>
+      window.IOT_API_BASE = window.IOT_API_BASE || "https://firmwarebackend.onrender.com";
     </script>
     <title>Apex Sensor Studio</title>
   </head>
@@ -33,6 +37,6 @@
         Apex Sensor Studio needs JavaScript enabled to show live moisture readings and analytics.
       </p>
     </noscript>
-    <script type="module" src="./src/static/index.js"></script>
+    <script type="module" src="./src/static/index.js?v=20261119"></script>
   </body>
 </html>
