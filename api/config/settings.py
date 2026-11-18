@@ -102,7 +102,10 @@ STORAGES = {
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-FRONTEND_URL = (os.getenv("FRONTEND_URL") or "http://localhost:8080").rstrip("/")
+# Hosted dashboard (override with FRONTEND_URL env for local compose)
+FRONTEND_URL = (
+    os.getenv("FRONTEND_URL") or "https://apex-sensor-lab.onrender.com"
+).rstrip("/")
 
 _DEFAULT_CORS = (
     "http://localhost:3000,"
