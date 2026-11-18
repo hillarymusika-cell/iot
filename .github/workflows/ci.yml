@@ -72,7 +72,7 @@ jobs:
       matrix:
         include:
           - name: backend
-            context: ./api
+            context: .
             file: ./api/Dockerfile
             image: iot-backend:ci
           - name: frontend

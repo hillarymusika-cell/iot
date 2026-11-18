@@ -7,8 +7,8 @@
 services:
   backend:
     build:
-      context: ./api
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: api/Dockerfile
     image: apex-sensor-api:local
     ports:
       - "${API_PORT:-8000}:8000"

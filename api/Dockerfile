@@ -9,7 +9,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /build
 
-COPY requirements.txt .
+COPY api/requirements.txt ./requirements.txt
 RUN python -m venv /opt/venv \
  && pip install --upgrade pip \
  && pip install -r requirements.txt
@@ -43,8 +43,7 @@ RUN apt-get update \
 WORKDIR /app
 
 COPY --from=deps /opt/venv /opt/venv
-COPY --chown=app:app . /app
-COPY --chown=app:app entrypoint.sh /app/entrypoint.sh
+COPY --chown=app:app api/ /app
 
 RUN chmod 755 /app/entrypoint.sh \
  && python -m compileall -q /app
