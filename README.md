@@ -19,7 +19,7 @@ Soil-moisture sensor platform: ESP32 devices → Django API → React dashboard.
 - **Dashboard** — live moisture chart + analytics summary (`/api/sensors/analytics/`)
 - **SQLite** — zero-config DB (persisted in Docker volume)
 - **Docker** — `docker compose up --build`
-- **CI** — pytest + Docker image build on `master` / `main`
+- **CI** — Django checks/tests + backend and frontend Docker image builds on `master` / `main`
 
 ## Quick start (local)
 

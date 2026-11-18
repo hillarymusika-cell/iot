@@ -40,7 +40,7 @@ COPY --from=deps /opt/venv /opt/venv
 COPY --chown=app:app . .
 
 RUN chmod +x /app/entrypoint.sh \
- && python manage.py collectstatic --noinput || true
+ && SECRET_KEY=build-only-secret-key DEBUG=False python manage.py collectstatic --noinput
 
 USER app
 

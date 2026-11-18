@@ -29,6 +29,10 @@ def test_home_and_api_index(api):
     assert f'href="{settings.FRONTEND_URL}/?view=analytics"'.encode() in r.content
     assert b'href="/api/' not in r.content
 
+    r = api.get("/health/")
+    assert r.status_code == 200
+    assert r.json() == {"status": "ok"}
+
     r = api.get("/api/")
     assert r.status_code == 200
     assert r.json() == {
