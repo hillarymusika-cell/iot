@@ -18,13 +18,8 @@ Soil-moisture sensor platform: ESP32 devices → Django API → React dashboard.
 - **Sensor ingest** — ESP32 posts `{"moisture": N}` with `Authorization: Bearer <token>` + `X-Device-ID`
 - **Dashboard** — live moisture chart + analytics summary (`/api/sensors/analytics/`)
 - **SQLite** — zero-config DB (persisted in Docker volume)
-<<<<<<< HEAD
-- **Docker** — `docker compose up --build`
-- **CI** — Django checks/tests + backend and frontend Docker image builds on `master` / `main`
-=======
 - **Docker** — production-ready images + Compose healthchecks
-- **CI** — pytest + Docker image build / smoke health on `master` / `main`
->>>>>>> 98561c7ee7127a896de576a7c5cf32bad7754b80
+- **CI** — Django checks/tests + backend and frontend Docker image builds on `master` / `main`
 
 ## Quick start (local, no Docker)
 
@@ -69,7 +64,7 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 Notes:
 
 - `DEBUG=false` refuses to start without a real `SECRET_KEY`
-- Frontend nginx proxies `/api/` and `/health/` to the `backend` service
+- Frontend nginx proxies `/api/` to `backend` in Compose and serves `/health/` locally
 - Gunicorn workers: set `WEB_CONCURRENCY` (default 2 local / 3 prod overlay)
 - Behind TLS (Render, Caddy, nginx): `X-Forwarded-Proto` is trusted for secure cookies
 
@@ -126,13 +121,13 @@ After registering a device in the UI, put values into `sensor/moistureSensor/cre
 namespace credentials {
   const char *wifi = "...";
   const char *wifiPassword = "...";
-  const char *server_url = "http://<host>:8000/api/sensors/readings/";
+  const char *server_url = "http://<api-lan-ip>:8000/api/sensors/readings/";
   const char *device_id = "<uuid>";
   const char *device_token = "<token>";
 }
 ```
 
-Use a LAN IP or public API host — not `localhost` on the ESP32.
+For local HTTP testing, use the API server's LAN IP; `localhost` on the ESP32 refers to the device itself. A public Render API uses HTTPS and requires certificate-verified TLS in the firmware before using its URL.
 
 ## Tests
 

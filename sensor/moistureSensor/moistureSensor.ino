@@ -113,6 +113,11 @@ void sendSensorData() {
     ledResponse(pins::badLed[0], 4, 80);
     Serial.print(F("POST failed HTTP "));
     Serial.print(statusCode);
+    if (statusCode < 0) {
+      Serial.print(F(" ("));
+      Serial.print(HTTPClient::errorToString(statusCode));
+      Serial.print(')');
+    }
     Serial.print(F(": "));
     Serial.println(responseBody);
   }
