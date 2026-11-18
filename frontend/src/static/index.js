@@ -6,7 +6,7 @@ const defaultApiBase = localHosts.includes(window.location.hostname)
   ? `http://${window.location.hostname}:8000`
   : window.location.protocol === "file:"
     ? "http://localhost:8000"
-    : "";
+    : "https://firmwarebackend.onrender.com";
 const API_BASE = (window.IOT_API_BASE || defaultApiBase).replace(/\/$/, "");
 const API_ROOT = `${API_BASE}/api`;
 const initialAuthMode = new URLSearchParams(window.location.search).get("auth") === "signup" ? "signup" : "login";

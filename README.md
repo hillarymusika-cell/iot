@@ -77,10 +77,14 @@ Notes:
 
 | Setting | Value |
 |---------|--------|
-| Root Directory | `api` |
-| Dockerfile Path | `./Dockerfile` (inside `api`) |
+| Root Directory | repository root |
+| Dockerfile Path | `api/Dockerfile` |
 | Health Check Path | `/health/` |
-| Env | `SECRET_KEY`, `ALLOWED_HOSTS`, `FRONTEND_URL`, `CORS_ALLOWED_ORIGINS`, `CSRF_TRUSTED_ORIGINS`, `DEBUG=false` |
+| `ALLOWED_HOSTS` | `firmwarebackend.onrender.com` |
+| `FRONTEND_URL` | `https://apex-sensor-lab.onrender.com` |
+| `CORS_ALLOWED_ORIGINS` | `https://apex-sensor-lab.onrender.com` |
+| `CSRF_TRUSTED_ORIGINS` | `https://apex-sensor-lab.onrender.com` |
+| Other required env | `SECRET_KEY`, `DEBUG=false` |
 
 Persistent disk (optional): mount at `/data` and set `SQLITE_PATH=/data/db.sqlite3`.
 
