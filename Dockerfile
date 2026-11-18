@@ -38,15 +38,15 @@ RUN apt-get update \
     && mkdir -p /app /data \
     && chown -R app:app /app /data
 
-WORKDIR /app
+WORKDIR /api
 
 COPY --from=deps /opt/venv /opt/venv
 COPY --chown=app:app . /app/
 
-RUN test -f /app/manage.py \
-    && test -f /app/entrypoint.sh \
-    && chmod 755 /app/entrypoint.sh \
-    && python -m compileall -q /app
+RUN test -f /api/manage.py \
+    && test -f /api/entrypoint.sh \
+    && chmod 755 /api/entrypoint.sh \
+    && python -m compileall -q /api
 
 RUN SECRET_KEY=ci-build-only-secret-key \
     DEBUG=false \
@@ -61,6 +61,6 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
     CMD curl -fsS "http://127.0.0.1:${PORT:-8000}/health/" || exit 1
 
-ENTRYPOINT ["/app/entrypoint.sh"]
+ENTRYPOINT ["/api/entrypoint.sh"]
 
 
