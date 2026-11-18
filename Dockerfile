@@ -38,7 +38,7 @@ RUN apt-get update \
     && mkdir -p /app /data \
     && chown -R app:app /app /data
 
-WORKDIR /api
+WORKDIR api/
 
 COPY --from=deps /opt/venv /opt/venv
 COPY --chown=app:app . .
