@@ -314,7 +314,7 @@ function AuthDialog({ onClose, onSuccess, initialMode = "login" }) {
           setConfirmPassword("");
           setError("");
         },
-      }, mode === "signup" ? "Already have an account? Sign in" : "New to Fieldnote? Create an account"),
+      }, mode === "signup" ? "Already have an account? Sign in" : "Do not have account? Create an account"),
     ),
   );
 }
