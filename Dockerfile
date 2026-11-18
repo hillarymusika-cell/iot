@@ -10,7 +10,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /build
 
-COPY requirements.txt .
+COPY api/requirements.txt ./requirements.txt
 
 RUN python -m venv /opt/venv \
     && pip install --upgrade pip \
@@ -38,15 +38,14 @@ RUN apt-get update \
     && mkdir -p /app /data \
     && chown -R app:app /app /data
 
-WORKDIR api/
+WORKDIR /app
 
 COPY --from=deps /opt/venv /opt/venv
-COPY --chown=app:app . .
-RUN pwd && ls -la /
-RUN test -f /manage.py
-RUN test -f /entrypoint.sh
-RUN chmod 755 /entrypoint.sh
-RUN python -m compileall -q /
+COPY --chown=app:app api/ /app
+RUN test -f /app/manage.py
+RUN test -f /app/entrypoint.sh
+RUN chmod 755 /app/entrypoint.sh
+RUN python -m compileall -q /app
 
 RUN SECRET_KEY=ci-build-only-secret-key \
     DEBUG=false \
@@ -61,6 +60,6 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
     CMD curl -fsS "http://127.0.0.1:${PORT:-8000}/health/" || exit 1
 
-ENTRYPOINT ["/api/entrypoint.sh"]
+ENTRYPOINT ["/app/entrypoint.sh"]
 
 

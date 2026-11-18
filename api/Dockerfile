@@ -1,5 +1,3 @@
-
-
 FROM python:3.12-slim-bookworm AS deps
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -42,20 +40,23 @@ RUN apt-get update \
  && mkdir -p /data /app \
  && chown -R app:app /data /app
 
-WORKDIR /
+WORKDIR /app
 
 COPY --from=deps /opt/venv /opt/venv
-COPY --chown=app:app . .
+COPY --chown=app:app . /app
 
-RUN chmod +x /app/entrypoint.sh \
-<<<<<<< HEAD
- && SECRET_KEY=build-only-secret-key DEBUG=False python manage.py collectstatic --noinput
-=======
+RUN chmod 755 /app/entrypoint.sh \
+ && python -m compileall -q /app \
  && SECRET_KEY=build-only-not-for-runtime \
     DEBUG=false \
     ALLOWED_HOSTS=localhost \
+    SQLITE_PATH=/tmp/build.sqlite3 \
+    python manage.py check \
+ && SECRET_KEY=build-only-not-for-runtime \
+    DEBUG=false \
+    ALLOWED_HOSTS=localhost \
+    SQLITE_PATH=/tmp/build.sqlite3 \
     python manage.py collectstatic --noinput
->>>>>>> 98561c7ee7127a896de576a7c5cf32bad7754b80
 
 USER app
 

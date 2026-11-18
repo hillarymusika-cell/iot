@@ -22,14 +22,10 @@ mkdir -p "$(dirname "$SQLITE_PATH")"
 echo "Running migrations..."
 python manage.py migrate --noinput
 
-<<<<<<< HEAD
-echo "Starting gunicorn on 0.0.0.0:${PORT}"
-=======
 echo "Collecting static files..."
-python manage.py collectstatic --noinput 2>/dev/null || true
+python manage.py collectstatic --noinput
 
 echo "Starting gunicorn on 0.0.0.0:${PORT} (workers=${WEB_CONCURRENCY})"
->>>>>>> 98561c7ee7127a896de576a7c5cf32bad7754b80
 exec gunicorn config.wsgi:application \
   --bind "0.0.0.0:${PORT}" \
   --workers "${WEB_CONCURRENCY}" \
