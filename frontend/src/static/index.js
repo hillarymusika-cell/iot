@@ -55,7 +55,6 @@ async function readJsonResponse(response, operation) {
       `${operation} (${response.status}) returned a non-JSON response.${hint}`,
     );
   }
-
   let payload;
   try {
     payload = await response.json();
@@ -113,7 +112,6 @@ function normalizeReadings(payload) {
   if (!Array.isArray(rows)) {
     throw new Error("The readings endpoint returned an unexpected response.");
   }
-
   return rows
     .map((row) => ({
       value: Number(row.moisturereading ?? row.moisture_reading ?? row.moisture),
@@ -145,6 +143,8 @@ function Icon({ name }) {
     arrow: "M7 17 17 7M7 7h10v10",
     close: "m6 6 12 12M18 6 6 18",
     copy: "M8 8V4h12v12h-4M4 8h12v12H4z",
+    eye: "M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Zm10 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z",
+    eyeOff: "M3 3l18 18M10.5 10.6A3 3 0 0 0 13.4 13.5M7 7.2C4.4 8.6 2.8 10.7 2 12c0 0 3.5 7 10 7 1.8 0 3.4-.4 4.7-1M14.1 9.1C15.3 9.9 16 11 16 12a4 4 0 0 1-4 4c-.7 0-1.3-.1-1.9-.4M9.9 5.1C10.6 5 11.3 5 12 5c6.5 0 10 7 10 7a18.5 18.5 0 0 1-2.3 3.1",
   };
   return h(
     "svg",
@@ -159,6 +159,171 @@ function Icon({ name }) {
       viewBox: "0 0 24 24",
     },
     h("path", { d: paths[name] }),
+  );
+}
+
+function AuthDialog({ onClose, onSuccess, initialMode = "login" }) {
+  const [mode, setMode] = useState(initialMode);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  async function authenticate(event) {
+    event.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    setError("");
+    try {
+      const trimmedEmail = email.trim();
+      if (!trimmedEmail) throw new Error("Enter your email address.");
+      if (!password) throw new Error("Enter your password.");
+      if (mode === "signup") {
+        if (password.length < 8) throw new Error("Password must be at least 8 characters.");
+        if (password !== confirmPassword) throw new Error("Passwords do not match.");
+      }
+
+      const csrfToken = await getCsrfToken();
+      const { auth } = await getApiUrls();
+      const endpoint = mode === "signup" ? auth.signup : auth.login;
+      const body =
+        mode === "signup"
+          ? { email: trimmedEmail, password, confirm_password: confirmPassword }
+          : { email: trimmedEmail, password };
+
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken,
+        },
+        credentials: "include",
+        body: JSON.stringify(body),
+      });
+
+      const payload = await readJsonResponse(
+        response,
+        mode === "signup" ? "Could not create your account" : "Could not sign in",
+      );
+      if (!payload.access) {
+        throw new Error(
+          responseError(
+            payload,
+            `Could not ${mode === "signup" ? "create your account" : "sign in"} (${response.status}).`,
+          ),
+        );
+      }
+      onSuccess({ access: payload.access, user: payload.user || null });
+    } catch (requestError) {
+      setError(requestError.message || "Authentication failed. Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function passwordField({ id, label, value, onChange, autoComplete, show, onToggle }) {
+    return [
+      h("label", { className: "field-label", htmlFor: id, key: `${id}-label` }, label),
+      h("div", { className: "password-field", key: `${id}-wrap` },
+        h("input", {
+          autoComplete,
+          className: "text-input password-input",
+          id,
+          onChange: (event) => onChange(event.target.value),
+          required: true,
+          type: show ? "text" : "password",
+          value,
+        }),
+        h("button", {
+          "aria-label": show ? "Hide password" : "Show password",
+          className: "password-toggle",
+          onClick: (event) => {
+            event.preventDefault();
+            onToggle(!show);
+          },
+          type: "button",
+        }, h(Icon, { name: show ? "eyeOff" : "eye" })),
+      ),
+    ];
+  }
+
+  return h("div", {
+    className: "modal-backdrop",
+    onMouseDown: (event) => {
+      if (event.target === event.currentTarget) onClose();
+    },
+  },
+    h("section", {
+      className: "dialog",
+      role: "dialog",
+      "aria-modal": "true",
+      "aria-labelledby": "auth-title",
+    },
+      h("button", {
+        className: "icon-button dialog-close",
+        type: "button",
+        onClick: onClose,
+        "aria-label": "Close",
+      }, h(Icon, { name: "close" })),
+      h("p", { className: "eyebrow" }, "YOUR FIELDNOTE ACCOUNT"),
+      h("h2", { id: "auth-title" }, mode === "signup" ? "Create an account" : "Sign in"),
+      h("p", { className: "dialog-copy" }, "Sign in to create and manage sensor devices."),
+      h("form", { onSubmit: authenticate },
+        h("label", { className: "field-label", htmlFor: "auth-email" }, "Email"),
+        h("input", {
+          autoComplete: "email",
+          autoFocus: true,
+          className: "text-input",
+          id: "auth-email",
+          onChange: (event) => setEmail(event.target.value),
+          required: true,
+          type: "email",
+          value: email,
+        }),
+        ...passwordField({
+          id: "auth-password",
+          label: "Password",
+          value: password,
+          onChange: setPassword,
+          autoComplete: mode === "signup" ? "new-password" : "current-password",
+          show: showPassword,
+          onToggle: setShowPassword,
+        }),
+        mode === "signup"
+          ? passwordField({
+              id: "auth-confirm-password",
+              label: "Confirm password",
+              value: confirmPassword,
+              onChange: setConfirmPassword,
+              autoComplete: "new-password",
+              show: showConfirmPassword,
+              onToggle: setShowConfirmPassword,
+            })
+          : null,
+        error && h("p", { className: "form-error", role: "alert" }, error),
+        h("button", {
+          className: "button button-primary full-button",
+          type: "submit",
+          disabled: busy,
+        }, busy ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"),
+      ),
+      h("button", {
+        className: "auth-switch",
+        type: "button",
+        onClick: () => {
+          setMode(mode === "signup" ? "login" : "signup");
+          setPassword("");
+          setConfirmPassword("");
+          setShowPassword(false);
+          setShowConfirmPassword(false);
+          setError("");
+        },
+      }, mode === "signup" ? "Already have an account? Sign in" : "Do not have account? Create an account"),
+    ),
   );
 }
 
@@ -220,7 +385,20 @@ function App() {
   const [error, setError] = useState("");
   const [analyticsError, setAnalyticsError] = useState("");
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [showAuth, setShowAuth] = useState(openSignupFromUrl);
+  const [authMode, setAuthMode] = useState(initialAuthMode);
   const [auth, setAuth] = useState(null);
+
+  function openAuth(mode) {
+    setAuthMode(mode);
+    setShowAuth(true);
+  }
+
+  useEffect(() => {
+    refreshAccessToken()
+      .then((access) => { if (access) setAuth({ access, user: null }); })
+      .catch(() => setAuth(null));
+  }, []);
 
   const loadReadings = useCallback(async () => {
     setLoading(true);
@@ -274,7 +452,20 @@ function App() {
         h("span", { className: "brand-mark" }, h(Icon, { name: "leaf" })),
         h("strong", null, "apex"),
       ),
-      h("span", { className: "badge" }, "SENSOR STUDIO"),
+      h("div", { style: { display: "flex", gap: "0.5rem", alignItems: "center" } },
+        h("span", { className: "badge" }, "SENSOR STUDIO"),
+        auth
+          ? h("button", {
+              className: "button button-quiet",
+              type: "button",
+              onClick: () => setAuth(null),
+            }, "Sign out")
+          : h("button", {
+              className: "button button-primary",
+              type: "button",
+              onClick: () => openAuth("login"),
+            }, "Sign in"),
+      ),
     ),
     error && h("p", { className: "form-error", role: "alert" }, error),
     h("section", { className: "hero-metrics" },
@@ -291,8 +482,7 @@ function App() {
       h("div", { className: "metric" },
         h("p", { className: "eyebrow" }, "ANALYTICS"),
         h("p", { className: "metric-value" }, analytics ? formatMetric(Number(analytics.average ?? analytics.avg), "%") : "—"),
-        h("p", { className: "metric-sub" }, analyticsError || (analyticsLoading ? "Loading…" : "average"),
-        ),
+        h("p", { className: "metric-sub" }, analyticsError || (analyticsLoading ? "Loading…" : "average")),
       ),
     ),
     h("section", { className: "history-card" },
@@ -316,6 +506,14 @@ function App() {
       h("span", null, "API · https://firmwarebackend.onrender.com"),
       h("span", null, "Last checked ", updatedLabel),
     ),
+    showAuth && h(AuthDialog, {
+      initialMode: authMode,
+      onClose: () => setShowAuth(false),
+      onSuccess: (session) => {
+        setAuth(session);
+        setShowAuth(false);
+      },
+    }),
   );
 }
 
