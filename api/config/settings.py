@@ -10,11 +10,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG", "true").lower() in ("1", "true", "yes")
-ALLOWED_HOSTS = [
-    h.strip()
-    for h in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1,testserver").split(",")
-    if h.strip()
-]
+
+# Comma-separated hosts from env (no scheme). Always keep local defaults.
+_allowed = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1,testserver")
+ALLOWED_HOSTS = [h.strip() for h in _allowed.split(",") if h.strip()]
+
+# Render injects RENDER_EXTERNAL_HOSTNAME (e.g. firmwarebackend.onrender.com).
+# Without this, Django returns 400 Bad Request on every request including /health/.
+_render_host = (os.getenv("RENDER_EXTERNAL_HOSTNAME") or "").strip()
+if _render_host and _render_host not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(_render_host)
 
 INSTALLED_APPS = [
     "django.contrib.admin",
