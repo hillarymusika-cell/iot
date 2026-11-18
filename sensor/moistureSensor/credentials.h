@@ -4,7 +4,7 @@
 namespace credentials{
     const char  wifi[]= "Galaxy A05 0797";
     const char wifiPassword[] = "12345678";
-    const char server_url[] = "http://localhost:8000/api/sensors/readings/";
+    const char server_url[] = "http://192.168.100.63/api/sensors/readings/";
     const char device_id[] = "c5ef8566-2532-4da8-96df-b98db76f8fe4";
     const char device_token[] = "g2WTdIQRbXoygMWzMfsl71XrIlMMpU7BY10EliuHjyk";
 }
