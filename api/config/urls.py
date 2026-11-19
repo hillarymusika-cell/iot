@@ -3,12 +3,12 @@ from django.contrib import admin
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.urls import include, path, reverse
-from django.http import HttpResponse
+
 
 
 
 def health(_request):
-    return HttpResponse(status=200)
+    return JsonResponse({},status=200)
 
 
 def home(request):
