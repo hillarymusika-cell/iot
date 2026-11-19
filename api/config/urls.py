@@ -8,7 +8,7 @@ from django.urls import include, path, reverse
 
 
 def health(_request):
-    return JsonResponse({},status=200)
+    return JsonResponse({"status":200})
 
 
 def home(request):
