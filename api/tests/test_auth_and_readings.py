@@ -31,7 +31,7 @@ def test_home_and_api_index(api):
 
     r = api.get("/health/")
     assert r.status_code == 200
-    assert r.json() == {"status": "ok"}
+    assert r.json() == {"status": 200}
 
     r = api.get("/api/")
     assert r.status_code == 200
